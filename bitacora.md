@@ -94,7 +94,7 @@ si no:
 
 # Verificación manual con tablas de traza
 
-Se usan los 12 registros de `src/datos.js`. Los importes de cada transacción se calculan como `cantidad * precio`. En la función `totalVendido` del programa se recorren todos los registros; el registro con cantidad cero aporta un importe de cero. Para el ticket promedio, el programa solo cuenta registros cuya cantidad sea mayor que cero.
+
 
 ## Traza 1: total vendido
 
@@ -140,7 +140,3 @@ Se acumula el importe de cada registro con `cantidad > 0` y se cuenta cada regis
 
 **Resultado del programa:** `Ticket promedio: 89545.45454545454`. Coincide, considerando la representación decimal de JavaScript.
 
-## Comprobación adicional de los otros indicadores
-
-- **Unidades vendidas:** `2 + 1 + 1 + 1 + 3 + 2 + 1 + 0 + 2 + 4 + 1 + 3 = 21`; el programa muestra `Unidades vendidas: 21`.
-- **Venta más grande:** el importe mayor es `4 * 42.000 = 168.000 COP`, correspondiente al registro con `id: 10`; el programa devuelve ese registro.
