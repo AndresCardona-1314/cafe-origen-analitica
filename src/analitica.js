@@ -140,9 +140,64 @@ function ventasPorCiudadM(ventas, ciudad){
         .reduce((acc, v) => acc + valorVenta(v), 0)
 }
 
-console.log("Total vendido M: ", totalVendidoM(ventas));
-console.log("Unidades vendidas M: ", unidadesVendidasM(ventas));
-console.log("Ventas Medellín (con espacios/minúsculas) M:", ventasPorCiudadM(ventas, "  medellín "))
+
+function ventaMayorM(ventas){
+    let mayor = ventas [0];
+    if (ventas.length === 0) {
+        return null;
+    } 
+    
+    return ventas.reduce((mayor,v) => (valorVenta(v) > valorVenta(mayor) ? v : mayor));
+    
+}
+
+function ticketPromedioM (ventas){
+    const validas = ventas.filter((v) => v.cantidad > 0);
+
+    if (validas.length === 0) {
+        return 0;
+    }
+
+    const total = validas.reduce((acc, v) => acc + valorVenta(v), 0);
+    return total / validas.length;
+}
+
+
+console.log("\nTotal vendido M: ", totalVendidoM(ventas));
+console.log("\nUnidades vendidas M: ", unidadesVendidasM(ventas));
+console.log("\nVentas Medellín (con espacios/minúsculas) M:", ventasPorCiudadM(ventas, "  medellín "));
+console.log("\nVenta mayor M: ", ventaMayorM(ventas));
+console.log("\nTicket promedio M:", ticketPromedioM(ventas));
+
+
+function totalPorCiudad(ventas){
+    return ventas.reduce((acc,v) => {
+        const ciudad = normalizar(v.ciudad);
+        acc[ciudad] = (acc[ciudad] || 0) + valorVenta(v);
+        return acc;
+
+    }, {});
+}
+
+console.log("\nTotal por ciudad: ", totalPorCiudad(ventas));
+
+
+
+
+
+module.exports = {
+    valorVenta,
+    totalVendido,
+    totalVendidoM,
+    unidadesVendidas,
+    unidadesVendidasM,
+    ventaMayor,
+    ventaMayorM,
+    ticketPromedio,
+    ticketPromedioM,
+    ventasPorCiudad,
+    ventasPorCiudadM
+};
 
 
 
