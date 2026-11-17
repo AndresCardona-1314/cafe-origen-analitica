@@ -124,4 +124,27 @@ console.log("Ticket promedio:", ticketPromedio(vacio));
 console.log("Ventas Medellín:", ventasPorCiudad(vacio, "Medellín"));
 
 
+function totalVendidoM(ventas){
+    return ventas.reduce((acc,v) => acc + valorVenta(v), 0);
+}
+
+function unidadesVendidasM(ventas){
+    return ventas
+        .filter((v) => v.cantidad > 0)
+        .reduce((acc,v) => acc + v.cantidad, 0);
+}
+
+function ventasPorCiudadM(ventas, ciudad){
+    return ventas
+        .filter((v) => normalizar(v.ciudad) === normalizar(ciudad))
+        .reduce((acc, v) => acc + valorVenta(v), 0)
+}
+
+console.log("Total vendido M: ", totalVendidoM(ventas));
+console.log("Unidades vendidas M: ", unidadesVendidasM(ventas));
+console.log("Ventas Medellín (con espacios/minúsculas) M:", ventasPorCiudadM(ventas, "  medellín "))
+
+
+
+
 
