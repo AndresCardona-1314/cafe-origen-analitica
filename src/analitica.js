@@ -217,6 +217,12 @@ function topProductosPorValor(ventas, k) {
 console.log("\nTop productos: ", topProductosPorValor(ventas,3));
 
 
+function ventasDelDia (ventas, fecha){
+    return ventas.filter((v) => v.fecha === fecha)
+}
+
+
+console.log("\nVenta día: ", ventasDelDia(ventas,"2026-09-06"));
 
 module.exports = {
     valorVenta,
