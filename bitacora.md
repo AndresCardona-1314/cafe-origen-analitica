@@ -140,3 +140,145 @@ Se acumula el importe de cada registro con `cantidad > 0` y se cuenta cada regis
 
 **Resultado del programa:** `Ticket promedio: 89545.45454545454`. Coincide, considerando la representación decimal de JavaScript.
 
+# Preguntas de recorrido, filtrado, transformación y acumulación por función
+
+## `valorVenta(venta)`
+
+- **¿Qué recorro?** No recorro un arreglo; recibo una venta individual.
+- **¿Qué filtro?** No filtro registros.
+- **¿Qué transformo?** Transformo `cantidad` y `precio` en el importe de la venta mediante `cantidad * precio`.
+- **¿Qué acumulo?** No acumulo valores.
+- **¿Cómo agrupo?** No agrupo datos.
+
+## `normalizar(texto)`
+
+- **¿Qué recorro?** No recorro un arreglo; recibo una cadena de texto.
+- **¿Qué filtro?** No filtro caracteres.
+- **¿Qué transformo?** Elimino espacios con `trim()` y convierto el texto a minúsculas con `toLowerCase()`.
+- **¿Qué acumulo?** No acumulo valores.
+- **¿Cómo agrupo?** No agrupo datos.
+
+## `totalVendido(ventas)`
+
+- **¿Qué recorro?** Recorro cada venta del arreglo `ventas`.
+- **¿Qué filtro?** No excluyo registros; esta versión suma todas las ventas.
+- **¿Qué transformo?** Convierto cada venta en su importe mediante `valorVenta(v)`.
+- **¿Qué acumulo?** Acumulo los importes parciales en `total`.
+- **¿Cómo agrupo?** No agrupo; obtengo un total general.
+
+## `unidadesVendidas(ventas)`
+
+- **¿Qué recorro?** Recorro cada venta del arreglo `ventas`.
+- **¿Qué filtro?** Solo considero las ventas cuya `cantidad` sea mayor que `0`.
+- **¿Qué transformo?** Uso directamente `v.cantidad` como unidades vendidas.
+- **¿Qué acumulo?** Acumulo la cantidad de unidades válidas en `totalUnidades`.
+- **¿Cómo agrupo?** No agrupo; obtengo el total de unidades.
+
+## `ventaMayor(ventas)`
+
+- **¿Qué recorro?** Recorro cada venta del arreglo `ventas`.
+- **¿Qué filtro?** Si el arreglo está vacío, no proceso registros y devuelvo `null`; no excluyo ventas dentro de un arreglo no vacío.
+- **¿Qué transformo?** Convierto cada venta a su importe y lo comparo con el importe de `mayor`.
+- **¿Qué acumulo?** Mantengo el registro completo de la venta de mayor importe en `mayor`.
+- **¿Cómo agrupo?** No agrupo; selecciono una venta representativa.
+
+## `ticketPromedio(ventas)`
+
+- **¿Qué recorro?** Recorro cada venta del arreglo `ventas`.
+- **¿Qué filtro?** Solo considero registros cuya `cantidad` sea mayor que `0`.
+- **¿Qué transformo?** Convierto cada venta válida en su importe y cuento la venta como una compra.
+- **¿Qué acumulo?** Acumulo los importes en `totalVentas` y el número de compras válidas en `cantidadVentas`.
+- **¿Cómo agrupo?** No agrupo por atributo; calculo el promedio general dividiendo el total entre la cantidad de ventas válidas.
+
+## `ventasPorCiudad(ventas, ciudad)`
+
+- **¿Qué recorro?** Recorro cada venta del arreglo `ventas`.
+- **¿Qué filtro?** Solo considero las ventas cuya ciudad normalizada coincida con la ciudad solicitada normalizada.
+- **¿Qué transformo?** Normalizo la ciudad de la venta y convierto la venta en su importe.
+- **¿Qué acumulo?** Acumulo los importes de las ventas coincidentes en `total`.
+- **¿Cómo agrupo?** No creo varios grupos; selecciono un único grupo identificado por `ciudad`.
+
+## `totalVendidoM(ventas)`
+
+- **¿Qué recorro?** Recorro `ventas` mediante `reduce`.
+- **¿Qué filtro?** No filtro registros; esta versión suma todas las ventas.
+- **¿Qué transformo?** Convierto cada venta en su importe con `valorVenta(v)`.
+- **¿Qué acumulo?** Acumulo cada importe en el acumulador `acc`, iniciado en `0`.
+- **¿Cómo agrupo?** No agrupo; devuelvo un único total.
+
+## `unidadesVendidasM(ventas)`
+
+- **¿Qué recorro?** Recorro `ventas` después de aplicar `filter` y luego mediante `reduce`.
+- **¿Qué filtro?** Conservo únicamente registros con `cantidad > 0`.
+- **¿Qué transformo?** Mantengo `v.cantidad` como dato numérico de unidades.
+- **¿Qué acumulo?** Acumulo las cantidades válidas en `acc`, iniciado en `0`.
+- **¿Cómo agrupo?** No agrupo; devuelvo el total de unidades.
+
+## `ventasPorCiudadM(ventas, ciudad)`
+
+- **¿Qué recorro?** Recorro `ventas` mediante `filter` y después `reduce`.
+- **¿Qué filtro?** Conservo las ventas cuya ciudad normalizada sea igual a la ciudad solicitada normalizada.
+- **¿Qué transformo?** Convierto cada venta coincidente en su importe con `valorVenta(v)`.
+- **¿Qué acumulo?** Acumulo los importes en `acc`, iniciado en `0`.
+- **¿Cómo agrupo?** No agrupo varios grupos; opero sobre las ventas de una sola ciudad.
+
+## `ventaMayorM(ventas)`
+
+- **¿Qué recorro?** Recorro `ventas` mediante `reduce`.
+- **¿Qué filtro?** Si el arreglo está vacío, devuelvo `null`; no aplico filtros adicionales a los registros.
+- **¿Qué transformo?** Comparo el importe de cada venta con el importe del registro acumulado como mayor.
+- **¿Qué acumulo?** Mantengo en `mayor` el objeto de la venta de mayor importe.
+- **¿Cómo agrupo?** No agrupo; selecciono un único máximo.
+
+## `ticketPromedioM(ventas)`
+
+- **¿Qué recorro?** Recorro `ventas` una vez para filtrar las válidas y otra vez para acumular sus importes.
+- **¿Qué filtro?** Conservo únicamente registros con `cantidad > 0`.
+- **¿Qué transformo?** Convierto cada venta válida en su importe y cuento su registro como una compra.
+- **¿Qué acumulo?** Acumulo los importes de las ventas válidas en `total`; el denominador es `validas.length`.
+- **¿Cómo agrupo?** No agrupo por atributo; calculo el promedio general de todas las ventas válidas.
+
+## `totalPorCiudad(ventas)`
+
+- **¿Qué recorro?** Recorro cada venta del arreglo `ventas` mediante `reduce`.
+- **¿Qué filtro?** No filtro registros.
+- **¿Qué transformo?** Normalizo `v.ciudad` y convierto la venta en su importe.
+- **¿Qué acumulo?** Acumulo el importe de cada venta en el valor asociado a su ciudad dentro de `acc`.
+- **¿Cómo agrupo?** Agrupo por ciudad normalizada; el resultado es un objeto donde cada clave representa una ciudad.
+
+## `unidadesPorProducto(ventas)`
+
+- **¿Qué recorro?** Recorro las ventas válidas mediante `filter` y `reduce`.
+- **¿Qué filtro?** Conservo únicamente registros con `cantidad > 0`.
+- **¿Qué transformo?** Normalizo `v.producto` y extraigo `v.cantidad` como cantidad vendida.
+- **¿Qué acumulo?** Acumulo las unidades de cada venta en el valor asociado a su producto dentro de `acc`.
+- **¿Cómo agrupo?** Agrupo por producto normalizado; el resultado es un objeto con una suma de unidades por producto.
+
+## `topProductosPorValor(ventas, k)`
+
+- **¿Qué recorro?** Recorro las ventas para agrupar importes y luego recorro las entradas del objeto agrupado.
+- **¿Qué filtro?** Conservo ventas con `cantidad > 0`; si el arreglo está vacío o `k <= 0`, devuelvo un arreglo vacío.
+- **¿Qué transformo?** Normalizo cada producto y convierto cada venta en su importe; luego transformo `Object.entries()` en objetos `{ producto, total }`.
+- **¿Qué acumulo?** Acumulo el importe total de cada producto en `totalesPorProducto`.
+- **¿Cómo agrupo?** Agrupo por producto normalizado, ordeno los totales de mayor a menor y tomo los primeros `k` productos.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -181,7 +181,40 @@ function totalPorCiudad(ventas){
 
 console.log("\nTotal por ciudad: ", totalPorCiudad(ventas));
 
+function unidadesPorProducto(ventas) {
+    return ventas
+        .filter((v) => v.cantidad > 0)
+        .reduce((acc, v) => {
+            const producto = normalizar(v.producto);
+            acc[producto] = (acc[producto] || 0) + v.cantidad;
+            return acc;
+        }, {});
+}
 
+console.log("\nUnidades por producto: ", unidadesPorProducto(ventas));
+
+function topProductosPorValor(ventas, k) {
+    if (ventas.length === 0 || k <= 0) {
+        return [];
+    }
+
+    // 1. Agrupar ingresos totales por producto en un objeto
+    const totalesPorProducto = ventas
+        .filter((v) => v.cantidad > 0)
+        .reduce((acc, v) => {
+            const producto = normalizar(v.producto);
+            acc[producto] = (acc[producto] || 0) + valorVenta(v);
+            return acc;
+        }, {});
+
+    // 2. Convertir el objeto en arreglo de objetos, ordenar de mayor a menor y tomar k
+    return Object.entries(totalesPorProducto)
+        .map(([producto, total]) => ({ producto, total }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, k);
+}
+
+console.log("\nTop productos: ", topProductosPorValor(ventas,3));
 
 
 
