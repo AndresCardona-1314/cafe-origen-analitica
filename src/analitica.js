@@ -198,7 +198,7 @@ function topProductosPorValor(ventas, k) {
         return [];
     }
 
-    // 1. Agrupar ingresos totales por producto en un objeto
+    
     const totalesPorProducto = ventas
         .filter((v) => v.cantidad > 0)
         .reduce((acc, v) => {
@@ -207,7 +207,7 @@ function topProductosPorValor(ventas, k) {
             return acc;
         }, {});
 
-    // 2. Convertir el objeto en arreglo de objetos, ordenar de mayor a menor y tomar k
+    
     return Object.entries(totalesPorProducto)
         .map(([producto, total]) => ({ producto, total }))
         .sort((a, b) => b.total - a.total)
@@ -218,11 +218,16 @@ console.log("\nTop productos: ", topProductosPorValor(ventas,3));
 
 
 function ventasDelDia (ventas, fecha){
-    return ventas.filter((v) => v.fecha === fecha)
+    
+    return ventas.filter((v) => normalizar(v.fecha) === normalizar(fecha) && v.cantidad > 0);
+    
+  
+    
 }
 
 
 console.log("\nVenta día: ", ventasDelDia(ventas,"2026-09-06"));
+
 
 module.exports = {
     valorVenta,
@@ -235,7 +240,11 @@ module.exports = {
     ticketPromedio,
     ticketPromedioM,
     ventasPorCiudad,
-    ventasPorCiudadM
+    ventasPorCiudadM,
+    ventasDelDia,
+    totalPorCiudad,
+    unidadesPorProducto,
+    topProductosPorValor
 };
 
 

@@ -262,14 +262,25 @@ Se acumula el importe de cada registro con `cantidad > 0` y se cuenta cada regis
 - **¿Qué acumulo?** Acumulo el importe total de cada producto en `totalesPorProducto`.
 - **¿Cómo agrupo?** Agrupo por producto normalizado, ordeno los totales de mayor a menor y tomo los primeros `k` productos.
 
+## Errores reportados
 
+#### Bug #1: Duplicación de ciudades en los reportes agrupados
 
+- **Síntoma:** Al generar el resumen de ventas agrupado por ciudad, una misma ciudad (como `"Bogotá"` o `"Medellín"`) aparece dividida en dos filas o claves distintas dentro del reporte.
+- **Entrada que lo produce:** Un arreglo de ventas donde la propiedad `ciudad` tiene variaciones de mayúsculas/minúsculas o espacios extra, como en el registro `id: 5` (`ciudad: "medellín"`) frente a `id: 1` (`ciudad: "Medellín"`), o entradas como `"Bogotá"` vs `"bogotá "`.
+- **Hipótesis:** El código preliminar agrupa utilizando el texto crudo (`v.ciudad`) como clave directa del objeto acumulador sin aplicar normalización previa, por lo que JavaScript trata `"Medellín"` y `"medellín"` como dos claves diferentes.
+- **Prueba realizada:** Se ejecutó la función `totalPorCiudad(ventas)` y `ventasPorCiudadM(ventas, "  medellín ")` sobre el dataset completo (que contiene 3 registros como `"Medellín"` y 1 registro como `"medellín"`).
+- **Causa:** Ausencia de estandarización de cadenas (`.trim()` y control de capitalización) antes de agrupar o comparar los nombres de ciudades.
+- **Corrección:** En `analitica.js` v0.1 se implementó la función `normalizar(texto)` (`String(texto).trim().toLowerCase()`) para las comparaciones en `ventasPorCiudad` / `ventasPorCiudadM`, y se estandarizó la clave en formato título al construir el objeto agrupado en `totalPorCiudad`, consolidando todos los registros en una única entrada (`Medellín: $221.000`).
 
+#### Bug #2: `NaN` en el ticket promedio al filtrar días sin ventas
 
-
-
-
-
+- **Síntoma:** Cuando se filtra una fecha sin transacciones registradas y se calcula el ticket promedio sobre ese subconjunto, el sistema imprime `NaN` (*Not a Number*) o `$NaN`.
+- **Entrada que lo produce:** `ticketPromedioM(ventasDelDia(ventas, "2026-09-07"))` (o cualquier fecha inexistente en el dataset, lo que pasa un arreglo vacío `[]` a la función del promedio).
+- **Hipótesis:** La versión preliminar divide la suma total de ventas entre la longitud del arreglo (`total / ventas.length`) sin validar si el divisor es `0`, provocando la operación indeterminada `0 / 0`, que en JavaScript evalúa a `NaN`.
+- **Prueba realizada:** Se ejecutó `ticketPromedio(ventasDelDia(ventas, "2026-09-07"))` y `ticketPromedioM([])` dentro de `src/verificar.js` y `src/reporte.js`.
+- **Causa:** Falta de una cláusula de guarda (*guard clause*) que intercepte arreglos vacíos o conjuntos sin ventas válidas (`cantidad > 0`) antes de ejecutar la división.
+- **Corrección:** En `analitica.js` v0.1 se incorporó la validación `if (validas.length === 0) return 0;` (en `ticketPromedioM`) y `if (cantidadVentas > 0) ... return 0;` (en `ticketPromedio`), garantizando que ante un día sin ventas el motor devuelva `0` (`$0`) de forma segura.
 
 
 

@@ -14,38 +14,75 @@ const {
     ventasPorCiudadM,
     totalPorCiudad,
     unidadesPorProducto,
-    topProductosPorValor
+    topProductosPorValor,
+    ventasDelDia
 } = require('./analitica');
 
+const fecha1 = "2026-09-04";
+const fecha2 = "2026-09-07";
 
+const formatearCOP = (valor) => `$${valor.toLocaleString("es-CO")}`;
+
+console.log(`\n=============================
+=== Reporte de ventas ===
+=============================`);
+
+console.log(`=============================
+Resumen general`);
+
+
+console.log("\nTotal vendido:", formatearCOP(totalVendidoM(ventas)));
+console.log("Total unidades vendidas:", unidadesVendidasM(ventas));
+console.log("Ticket promedio:", formatearCOP(ticketPromedioM(ventas)));
+
+
+const mayor = ventaMayorM(ventas);
+console.log("\nVenta mayor:", mayor ? {
+    ...mayor,
+    precio: formatearCOP(mayor.precio),
+    totalVenta: formatearCOP(mayor.cantidad * mayor.precio)
+} : "Sin ventas");
+
+
+const formatearListaVentas = (lista) => {
+    if (lista.length === 0) {
+        return "No hay ventas registradas en esta fecha";
+    }
+    return lista.map((v) => ({
+        ...v,
+        precio: formatearCOP(v.precio),
+        subtotal: formatearCOP(v.cantidad * v.precio)
+    }));
+};
+
+console.log(`\nVentas del ${fecha1}:`, formatearListaVentas(ventasDelDia(ventas, fecha1)));
+console.log(`\nVentas del ${fecha2}:`, formatearListaVentas(ventasDelDia(ventas, fecha2)));
 console.log("=============================");
-console.log("=== Reporte de ventas ===")
-console.log("=============================");
+
 
 console.log("\n=============================");
-console.log("\nResumen general ");
-
-console.log("\nTotal vendido: ", totalVendidoM(ventas));
-console.log("\nTotal unidades vendidas: ", unidadesVendidasM(ventas));
-console.log("\nVenta mayor: ", ventaMayorM(ventas));
-console.log("\nTicket promedio: ", ticketPromedioM(ventas));
-console.log("=============================");
-
-console.log("\n=============================");
-console.log("\nVentas por ciudad ");
-console.log("\nVentas por ciudad: ", ventasPorCiudadM(ventas));
+console.log("Ventas por ciudad:");
+const ciudadesFormateadas = Object.fromEntries(
+    Object.entries(totalPorCiudad(ventas)).map(([ciudad, total]) => [ciudad, formatearCOP(total)])
+);
+console.table(ciudadesFormateadas);
 console.log("=============================");
 
 
 console.log("\n=============================");
-console.log("\nUnidades por prodcucto ");
-console.log("\nUnidades por producto: ", unidadesPorProducto(ventas));
+console.log("Unidades por producto:");
+console.table(unidadesPorProducto(ventas));
 console.log("=============================");
 
 
 console.log("\n=============================");
-console.log("\nTop 3 productos más vendidos ");
-console.log("\nTop 3 productos más vendidos: ", unidades(ventas));
+console.log("Top 3 productos más vendidos:");
+const topFormateado = topProductosPorValor(ventas, 3).map((item) => ({
+    producto: item.producto,
+    total: formatearCOP(item.total)
+}));
+console.log(topFormateado);
+console.log("=============================");
 
 
 

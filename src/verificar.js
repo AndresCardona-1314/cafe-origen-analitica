@@ -10,7 +10,10 @@ const {
     ticketPromedio,
     ticketPromedioM,
     ventasPorCiudad,
-    ventasPorCiudadM
+    ventasPorCiudadM,
+    topProductosPorValor,
+    totalPorCiudad,
+    ventasDelDia
 } = require('./analitica');
 
 function verificarPar(nombre, valorCiclo, valorMetodo) {
@@ -32,3 +35,23 @@ verificarPar("unidadesVendidas []", unidadesVendidas([]), unidadesVendidasM([]))
 verificarPar("ventaMayor []", ventaMayor([]), ventaMayorM([]));
 verificarPar("ticketPromedio []", ticketPromedio([]), ticketPromedioM([]));
 verificarPar("ventasPorCiudad []", ventasPorCiudad([], "Bogotá"), ventasPorCiudadM([], "Bogotá"));
+
+
+
+
+
+// Errores reportados
+
+const ciudadesPrueba = [
+    {ciudad: "Bogotá", producto: "Origen Huila 500 g", cantidad: 2, precio: 42000},
+    {ciudad: "BOGOTÁ", producto: "Origen Huila 500 g", cantidad: 1, precio: 42000},
+    {ciudad: "BoGotá ", producto: "Origen Huila 500 g", cantidad: 3, precio: 42000}
+]
+
+console.log(`\nDemostración de corrección de errores
+    
+    \n`, totalPorCiudad(ciudadesPrueba));
+
+const diaSinVentas = ventasDelDia(ventas, "2026-09-07");
+console.log(`Ticket promedio de un día sin ventas: `, ticketPromedioM(diaSinVentas));
+    
