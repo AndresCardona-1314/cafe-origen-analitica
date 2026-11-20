@@ -244,7 +244,8 @@ module.exports = {
     ventasDelDia,
     totalPorCiudad,
     unidadesPorProducto,
-    topProductosPorValor
+    topProductosPorValor,
+    normalizar
 };
 
 
