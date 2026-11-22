@@ -285,11 +285,56 @@ Se acumula el importe de cada registro con `cantidad > 0` y se cuenta cada regis
 
 
 
+## Predicción de crecimiento de operaciones (Complejidad Temporal):
+
+- **Hipótesis:** Si el tamaño de entrada $n$ (cantidad de registros de ventas) se multiplica por **10** (por ejemplo, pasando de $n = 100$ a $n = 1.000$, o de $n = 1.000$ a $n = 10.000$), el número de operaciones de **las tres funciones (`totalVendido`, `ventaMayor` y `totalPorCiudad`) también se multiplicará exactamente por 10**.
+- **Justificación técnica:** Cada una de estas funciones implementa un único recorrido secuencial sobre los $n$ elementos del arreglo (complejidad lineal **$O(n)$**). En cada iteración se ejecuta un número constante de pasos (una visita y una suma, comparación o asignación en un objeto hash de acceso $O(1)$), por lo que la relación entre el tamaño de los datos y la cantidad de operaciones es directamente proporcional ($T(n) \approx n$).
 
 
 
 
 
+
+
+
+
+
+
+## Comparación: Predicción vs. Resultados Empíricos
+
+- **Predicción inicial:** Se estimó que al multiplicar el tamaño de entrada $n$ por **10**, las funciones `totalVendido`, `ventaMayor` y `totalPorCiudad` multiplicarían su cantidad de operaciones por **10** (crecimiento lineal), mientras que `primeraVenta` mantendría siempre **1** operación (crecimiento constante).
+- **Validación con datos reales (`src/medir.js`):** Los resultados empíricos confirmaron la predicción al **100%**:
+
+| **Tamaño de entrada (n)** | **primeraVenta** | **totalVendido** | **ventaMayor** | **totalPorCiudad** | **Factor de crecimiento observado** |
+|---|---:|---:|---:|---:|---|
+| $100$ | $1$ op | $100$ ops | $100$ ops | $100$ ops | Base ($\times 1$) |
+| $1.000$ | $1$ op | $1.000$ ops | $1.000$ ops | $1.000$ ops | **$\times 1$** en $O(1)$ / **$\times 10$** en $O(n)$ |
+| $10.000$ | $1$ op | $10.000$ ops | $10.000$ ops | $10.000$ ops | **$\times 1$** en $O(1)$ / **$\times 10$** en $O(n)$ |
+| $100.000$ | $1$ op | $100.000$ ops | $100.000$ ops | $100.000$ ops | **$\times 1$** en $O(1)$ / **$\times 10$** en $O(n)$ |
+
+- **Observación sobre tiempos de ejecución (`performance.now()`):** Aunque `totalVendido`, `ventaMayor` y `totalPorCiudad` ejecutan exactamente el mismo número de iteraciones ($n$), `totalPorCiudad` registra unos milisegundos adicionales en $n = 100.000$. Esto no cambia su clase de complejidad, sino que responde al costo constante por iteración ($c$) de manipular cadenas de texto (`normalizar` con `.trim()`, `.toLowerCase()` y `.slice()`).
+
+#### 2. Clasificación y Justificación Técnica por Función
+
+##### A. `primeraVenta(ventas)` $\rightarrow$ Complejidad Constante **$O(1)$**
+
+- **Justificación con los números:** Al escalar $n$ desde $100$ hasta $100.000$ registros (un incremento de $\times 1.000$), el conteo se mantuvo invariable en **$1$ operación**.
+- **Justificación con el código:** No contiene ningún ciclo ni método iterativo. Accede directamente a una posición fija en memoria mediante índice (`return ventas[0]`), lo cual toma el mismo esfuerzo sin importar la longitud del arreglo.
+
+##### B. `totalVendido(ventas)` $\rightarrow$ Complejidad Lineal **$O(n)$**
+
+- **Justificación con los números:** Cada vez que $n$ se multiplicó por $10$, las operaciones crecieron exactamente en la misma proporción ($100 \rightarrow 1.000 \rightarrow 10.000 \rightarrow 100.000$).
+- **Justificación con el código:** Utiliza un único bucle simple (`for (const v of ventas)`) que visita cada elemento una sola vez para ejecutar una operación aritmética constante (`total += valorVenta(v)`). No existen ciclos anidados.
+
+##### C. `ventaMayor(ventas)` $\rightarrow$ Complejidad Lineal **$O(n)$**
+
+- **Justificación con los números:** Presenta un crecimiento estrictamente proporcional a $n$, realizando $n$ visitas/comparaciones (o $n - 1$ si inicia en el índice $1$).
+- **Justificación con el código:** Recorre secuencialmente el arreglo mediante un único ciclo (`for...of`) manteniendo una variable auxiliar `mayor` y ejecutando una comparación simple (`if (valorVenta(v) > valorVenta(mayor))`) por cada elemento.
+
+##### D. `totalPorCiudad(ventas)` $\rightarrow$ Complejidad Lineal **$O(n)$**
+
+- **Justificación con los números:** Realiza exactamente $n$ operaciones de recorrido ($100.000$ operaciones para $n = 100.000$), manteniendo una pendiente lineal frente al crecimiento de los datos.
+- **Justificación con el código:** Recorre el arreglo una sola vez (`for...of`) y agrupa los resultados utilizando un objeto diccionario (`totales[ciudadTitulo]`). Dado que la búsqueda e inserción por clave en un objeto JavaScript (tabla hash) tiene costo promedio **$O(1)$**, no introduce ciclos internos y conserva la eficiencia lineal **$O(n)$**.
 
 
 
