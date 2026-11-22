@@ -421,5 +421,4 @@ Usando como referencia el tiempo medido para $n = 16.000$ (`1.474 s`):
 > **Nota para Gerencia:**
 >
 > El reporte de clientes recurrentes se vuelve más lento cuando crece el volumen de ventas porque el sistema compara cada venta con todas las que aparecen después. Con pocas ventas, el proceso es rápido; al multiplicar por diez el historial, las comparaciones entre pares crecen aproximadamente cien veces.
->
-> Para que el reporte siga respondiendo rápido a medida que Café Origen crece, podemos reemplazar este cruce repetido por un registro de clientes ya vistos, como una libreta de asistencia donde marcamos quién ya vino. Así evitamos revisar una y otra vez las mismas ventas.
+
