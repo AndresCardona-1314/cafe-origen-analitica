@@ -337,4 +337,89 @@ Se acumula el importe de cada registro con `cantidad > 0` y se cuenta cada regis
 - **Justificación con el código:** Recorre el arreglo una sola vez (`for...of`) y agrupa los resultados utilizando un objeto diccionario (`totales[ciudadTitulo]`). Dado que la búsqueda e inserción por clave en un objeto JavaScript (tabla hash) tiene costo promedio **$O(1)$**, no introduce ciclos internos y conserva la eficiencia lineal **$O(n)$**.
 
 
+## Traza de `clientesRecurrentes(ventas)` con 5 ventas
 
+Para contar las comparaciones del ciclo anidado, usamos estas cinco ventas de ejemplo (el algoritmo compara el campo `cliente`):
+
+```js
+const ventas = [
+  { cliente: "C01" },
+  { cliente: "C02" },
+  { cliente: "C01" },
+  { cliente: "C03" },
+  { cliente: "C02" }
+];
+```
+
+| Índice | Cliente |
+|---:|:---|
+| 0 | C01 |
+| 1 | C02 |
+| 2 | C01 |
+| 3 | C03 |
+| 4 | C02 |
+
+El ciclo externo fija `i` y el interno compara esa venta con las que vienen después (`j = i + 1` hasta `n - 1`):
+
+| `i` | Comparaciones de clientes (`ventas[i].cliente === ventas[j].cliente`) | Comparaciones |
+|---:|:---|---:|
+| 0 | `C01 === C02` → falso; `C01 === C01` → verdadero; `C01 === C03` → falso; `C01 === C02` → falso | 4 |
+| 1 | `C02 === C01` → falso; `C02 === C03` → falso; `C02 === C02` → verdadero | 3 |
+| 2 | `C01 === C03` → falso; `C01 === C02` → falso | 2 |
+| 3 | `C03 === C02` → falso | 1 |
+| 4 | No hay valores posteriores que comparar | 0 |
+| **Total** | **`4 + 3 + 2 + 1 + 0`** | **10** |
+
+El resultado de la función para este ejemplo es `["C01", "C02"]`. Además de las 10 comparaciones entre clientes, el código llama a `recurrentes.includes(...)` cuando encuentra una coincidencia: al encontrar `C01`, la lista está vacía y no se compara ningún elemento; al encontrar `C02`, se compara con `C01` una vez. Por tanto, en esta traza hay **1 comparación adicional** dentro de `includes` (11 comparaciones de igualdad en total).
+
+### Generalización
+
+Con `n` ventas, el ciclo interno realiza `n - 1` comparaciones para `i = 0`, `n - 2` para `i = 1`, y así sucesivamente hasta 0. Las comparaciones entre clientes son:
+
+$$
+C(n) = (n - 1) + (n - 2) + \dots + 1 + 0
+     = \frac{n(n - 1)}{2}
+$$
+
+Para `n = 5`, `C(5) = 5 × 4 / 2 = 10`. Esta fórmula cuenta las comparaciones del ciclo anidado; las realizadas por `includes` dependen de los clientes repetidos y del contenido de `recurrentes`. El ciclo anidado por sí solo tiene crecimiento **$O(n^2)$**. Como `includes` también recorre `recurrentes`, la función completa puede llegar a **$O(n^3)$** en el peor caso.
+
+
+## Tabla de resultados medidos
+
+Los tiempos son los que arrojó `console.timeEnd` al ejecutar `node src/recurrentes.js` en esta terminal. La columna teórica cuenta las comparaciones entre pares, con $C(n) = n(n-1)/2$.
+
+| **Tamaño de entrada ($n$)** | **Comparaciones teóricas** | **Tiempo medido (`console.timeEnd`)** | **Factor frente al anterior** |
+|---:|---:|---:|---:|
+| $1.000$ | $499.500$ | `9.762 ms` | Base |
+| $2.000$ | $1.999.000$ | `26.938 ms` | $\times 2,76$ |
+| $4.000$ | $7.998.000$ | `116.088 ms` | $\times 4,31$ |
+| $8.000$ | $31.996.000$ | `525.554 ms` | $\times 4,53$ |
+| $16.000$ | $127.992.000$ | `1.474 s` | $\times 2,81$ |
+| $100.000$ | $4.999.950.000$ | `1:47.133 (m:ss.mmm)` | $\times 72,68$ |
+
+### Análisis de duplicación de $n$ y relación con $O(n^2)$
+
+> **Análisis:** Al duplicar $n$, las comparaciones entre pares se multiplican aproximadamente por cuatro. La relación teórica exacta es $C(2n)/C(n) = 2(2n-1)/(n-1)$, que tiende a 4 cuando $n$ crece. En esta ejecución, los factores de tiempo observados fueron $\times 2,76$, $\times 4,31$, $\times 4,53$ y $\times 2,81$: muestran variación y no un factor constante. Los tiempos pueden cambiar entre ejecuciones por la generación aleatoria de ventas, la optimización JIT, el recolector de basura y la carga del equipo.
+>
+> **Relación con $O(n^2)$:** Los dos ciclos anidados comparan cada venta con las que le siguen, sumando $n(n-1)/2$ comparaciones. Por eso, el conteo del ciclo crece cuadráticamente: al sustituir $n$ por $2n$, el término dominante pasa de $n^2$ a $(2n)^2 = 4n^2$. El tiempo total también incluye la búsqueda de `recurrentes.includes(...)`, así que no tiene por qué seguir exactamente esa proporción.
+
+### Estimación para $100.000$ y $1.000.000$ de ventas
+
+Usando como referencia el tiempo medido para $n = 16.000$ (`1.474 s`):
+
+- **Para $n = 100.000$:** el tamaño crece $6,25$ veces; la regla cuadrática predice un factor de $6,25^2 = 39,0625$. El tiempo estimado es $1,474 \text{ s} \times 39,0625 \approx 57,578 \text{ s}$. En esta ejecución, el terminal midió realmente **`1:47.133`** para $n = 100.000$ (1 minuto y 47,133 segundos), menos de dos minutos. La diferencia respecto a la estimación muestra que la regla es aproximada y que los costos de `includes` y la variación de la prueba afectan el tiempo.
+- **Para $n = 1.000.000$:** frente a $n = 16.000$, el tamaño crece $62,5$ veces; la regla predice un factor de $62,5^2 = 3.906,25$. Desde el tiempo de referencia de `1.474 s`, la estimación es $1,474 \text{ s} \times 3.906,25 \approx 5.757,8 \text{ s}$, aproximadamente **1 hora, 35 minutos y 58 segundos**. No se ejecutó la prueba de un millón de ventas; es una extrapolación, no un tiempo medido. Como referencia alternativa, extrapolar cien veces la medición real de $100.000$ daría cerca de **2 horas y 58 minutos**.
+
+### Costo de `recurrentes.includes(...)` en el peor caso
+
+> **Costo adicional:** `.includes()` busca linealmente en `recurrentes`, por lo que puede revisar hasta $k$ elementos si el arreglo contiene $k$ clientes recurrentes. Esta búsqueda solo se ejecuta cuando la comparación de clientes del ciclo interno encuentra una coincidencia.
+>
+> **Peor caso:** Si se acumulan proporcionalmente a $n$ clientes recurrentes y muchas coincidencias ocurren cuando esa lista ya es grande, las búsquedas de `includes` pueden elevar el peor caso de la función completa a **$O(n^3)$**. Esto es distinto del ciclo anidado, que por sí solo es **$O(n^2)$**. Además, `src/generador.js` no usa un catálogo fijo: establece la cantidad de clientes sintéticos como `Math.floor(n / 3)`, que también crece con $n$.
+
+### Conclusión para la gerente
+
+> **Nota para Gerencia:**
+>
+> El reporte de clientes recurrentes se vuelve más lento cuando crece el volumen de ventas porque el sistema compara cada venta con todas las que aparecen después. Con pocas ventas, el proceso es rápido; al multiplicar por diez el historial, las comparaciones entre pares crecen aproximadamente cien veces.
+>
+> Para que el reporte siga respondiendo rápido a medida que Café Origen crece, podemos reemplazar este cruce repetido por un registro de clientes ya vistos, como una libreta de asistencia donde marcamos quién ya vino. Así evitamos revisar una y otra vez las mismas ventas.
