@@ -523,3 +523,28 @@ Usando como referencia el tiempo medido para $n = 16.000$ (`1.474 s`):
 > - **Costo en Memoria ($O(n)$):** La versión original de fuerza bruta consumía memoria adicional mínima ($O(k)$, solo el arreglo con los IDs de clientes recurrentes), ya que no guardaba historial y recalculaba las coincidencias recorriendo el arreglo una y otra vez. En cambio, las soluciones con `Set` y `Map` reservan memoria extra proporcional a los clientes únicos del dataset ($O(U)$, y **$O(n)$** en el peor caso si todos los clientes son distintos) para almacenar el conjunto `vistos` o la tabla de frecuencias `compras`.
 > - **Ganancia en Tiempo ($O(n^2) \rightarrow O(n)$):** Gracias a ocupar esa memoria auxiliar con tablas hash (cuyas operaciones `.has()`, `.add()`, `.get()` y `.set()` cuestan **$O(1)$**), eliminamos por completo el segundo ciclo anidado. Esto reduce el tiempo de ejecución en $n = 100.000$ de **varios segundos** (fuerza bruta) a **menos de 15 milisegundos** (`Set` y `Map`), logrando una aceleración superior a $500\times$ a cambio de unos pocos kilobytes en RAM.
 
+## Traza de `comboRegaloMap(catalogo, 87000)`
+
+El método recibe el arreglo `catalogo` y busca dos productos cuyos precios sumen `87000`. Para cada producto calcula `complemento = 87000 - item.precio` y consulta primero si ese complemento ya está almacenado en el `Map`. Si no está, registra el precio actual como clave y su producto como valor.
+
+| Iteración | Producto actual | Precio (`item.precio`) | Complemento (`87000 - precio`) | ¿`complemento` existe en `vistos`? | Estado de `vistos` después del paso | Acción |
+|---:|---|---:|---:|:---:|---|---|
+| 1 | Origen Nariño 250 g | 26000 | 61000 | No | `{ 26000: "Origen Nariño 250 g" }` | Guardar precio y producto |
+| 2 | Origen Huila 500 g | 42000 | 45000 | No | `{ 26000: "Origen Nariño 250 g", 42000: "Origen Huila 500 g" }` | Guardar precio y producto |
+| 3 | Origen Sierra 500 g | 45000 | 42000 | Sí | Sin cambios | Recuperar el producto asociado a `42000` |
+| 4 | Filtros de papel x100 | 18000 | 69000 | No | Sin cambios; no se alcanza porque la función ya retornó | No se procesa |
+
+En la tercera iteración, `vistos.has(42000)` es `true`. Por ello, `vistos.get(42000)` devuelve `"Origen Huila 500 g"` y la función construye el arreglo de resultado con el producto actual:
+
+```text
+return ["Origen Huila 500 g", "Origen Sierra 500 g"];
+```
+
+**Resultado:** `comboRegaloMap(catalogo, 87000)` devuelve `["Origen Huila 500 g", "Origen Sierra 500 g"]`.
+
+
+
+
+
+
+

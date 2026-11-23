@@ -1,3 +1,5 @@
+const { valorVenta } = require("./analitica");
+
 const ventas = [
     {id: 1, fecha: "2026-09-01", cliente: "C01", producto: "Origen Huila 500 g", ciudad: "Medellín", cantidad: 2, precio: 42000},
     {id: 2, fecha: "2026-09-01", cliente: "C02", producto: "Origen Nariño 250 g", ciudad: "Bogotá", cantidad:1, precio: 26000},
@@ -16,3 +18,7 @@ const ventas = [
 ];
 
 module.exports = ventas;
+
+
+
+

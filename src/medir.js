@@ -1,3 +1,5 @@
+const { performance } = require('perf_hooks');
+
 const {
     generarVentas
 } = require('./generador');

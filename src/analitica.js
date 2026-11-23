@@ -273,6 +273,49 @@ console.assert(resCadena === resUnaPasada, "ERROR: Los resultados no coinciden")
 console.log("Verificación exitosa: ambas devuelven exactamente el mismo valor."); */
 
 
+function productoEstrellaPorCiudad(ventas){
+    const conteoPorCiudad = new Map();
+
+    for (const v of ventas){
+        if (v.cantidad <= 0) continue;
+
+        const ciudadLimpia = normalizar(v.ciudad);
+        const ciudadTitulo = ciudadLimpia.charAt(0).toUpperCase() + ciudadLimpia.slice(1);
+        const producto = v.producto.trim();
+
+        if (!conteoPorCiudad.has(ciudadTitulo)){
+            conteoPorCiudad.set(ciudadTitulo, new Map());
+        }
+
+        const mapaProductos = conteoPorCiudad.get(ciudadTitulo);
+        mapaProductos.set(producto, (mapaProductos.get(producto) || 0) + 1);
+    }
+
+    const estrellas = {};
+
+    for (const [ciudad, mapaProductos] of conteoPorCiudad.entries()){
+        let productoEstrella = null;
+        let maxApariciones = 0;
+
+        for (const [producto, apariciones] of mapaProductos.entries()){
+            if (apariciones > maxApariciones){
+                maxApariciones = apariciones;
+                productoEstrella = producto;
+            }
+        }
+
+        estrellas[ciudad] = {
+            producto: productoEstrella,
+            apariciones: maxApariciones
+        };
+    }
+
+    return estrellas;
+}
+
+console.log(`\nProducto estrella por ciudad: `);
+console.table(productoEstrellaPorCiudad(ventas));
+
 
 module.exports = {
     valorVenta,
