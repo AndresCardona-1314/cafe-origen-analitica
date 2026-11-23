@@ -542,9 +542,13 @@ return ["Origen Huila 500 g", "Origen Sierra 500 g"];
 
 **Resultado:** `comboRegaloMap(catalogo, 87000)` devuelve `["Origen Huila 500 g", "Origen Sierra 500 g"]`.
 
+## Clasificación de Complejidad de las Tres Funciones
 
-
-
-
+| Función | Complejidad Temporal | Complejidad Espacial | Justificación Técnica |
+|---|---|---|---|
+| **`comboRegalo`** *(Fuerza bruta)* | **$O(n^2)$** | **$O(1)$** | Evalúa todos los pares posibles mediante dos ciclos `for` anidados ($\frac{n(n-1)}{2}$ comparaciones) sin usar estructuras auxiliares. |
+| **`comboRegaloMap`** *(Optimizada con `Map`)* | **$O(n)$** | **$O(n)$** | Recorre el catálogo una sola vez; consultar el complemento en el `Map` (`vistos.has()`) cuesta $O(1)$, almacenando hasta $n$ precios en memoria. |
+| **`productoEstrellaPorCiudad`** | **$O(n)$** | **$O(n)$** *(o $O(C \cdot P)$)* | El primer recorrido visita las $n$ ventas ($O(n)$) actualizando los `Map` en $O(1)$. El segundo recorrido visita cada combinación ciudad-producto única ($k \le n$), por lo que $O(n + k) = \mathbf{O(n)}$. En memoria guarda hasta $n$ entradas en el peor caso donde cada venta tenga ciudad y producto únicos. |
+| **`primerClienteUnico`** | **$O(n)$** | **$O(n)$** | Ejecuta **dos recorridos independientes y secuenciales** de longitud $n$ ($n + n = 2n \rightarrow \mathbf{O(n)}$ tras eliminar constantes). El `Map` almacena hasta $U$ clientes únicos ($O(n)$ en el peor caso donde ningún cliente repita compra). |
 
 

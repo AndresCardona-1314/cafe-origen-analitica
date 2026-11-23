@@ -288,7 +288,12 @@ function productoEstrellaPorCiudad(ventas){
         }
 
         const mapaProductos = conteoPorCiudad.get(ciudadTitulo);
-        mapaProductos.set(producto, (mapaProductos.get(producto) || 0) + 1);
+        const actual = mapaProductos.get(producto) || {apariciones: 0, unidades: 0};
+
+        mapaProductos.set(producto, {
+            apariciones: actual.apariciones + 1,
+            unidades: actual.unidades + v.cantidad
+        });
     }
 
     const estrellas = {};
@@ -296,17 +301,23 @@ function productoEstrellaPorCiudad(ventas){
     for (const [ciudad, mapaProductos] of conteoPorCiudad.entries()){
         let productoEstrella = null;
         let maxApariciones = 0;
+        let maxUnidades = 0
 
-        for (const [producto, apariciones] of mapaProductos.entries()){
-            if (apariciones > maxApariciones){
-                maxApariciones = apariciones;
+        for (const [producto, stats] of mapaProductos.entries()){
+            const superaApariciones = stats.apariciones > maxApariciones;
+            const superaUnidades = stats.apariciones === maxApariciones && stats.unidades > maxUnidades;
+            
+            if (superaApariciones || superaUnidades){
+                maxApariciones = stats.apariciones;
+                maxUnidades = stats.unidades;
                 productoEstrella = producto;
             }
         }
 
         estrellas[ciudad] = {
             producto: productoEstrella,
-            apariciones: maxApariciones
+            apariciones: maxApariciones,
+            cantidad: maxUnidades
         };
     }
 
@@ -316,6 +327,25 @@ function productoEstrellaPorCiudad(ventas){
 console.log(`\nProducto estrella por ciudad: `);
 console.table(productoEstrellaPorCiudad(ventas));
 
+function primerClienteUnico(ventas){
+    const frecuencias = new Map();
+
+    for (const v of ventas){
+        const cliente = v.cliente.trim();
+        frecuencias.set(cliente, (frecuencias.get(cliente) || 0) + 1);
+
+    }
+
+    for (const v of ventas){
+        const cliente = v.cliente.trim();
+        if (frecuencias.get(cliente) === 1){
+            return cliente;
+        }
+    }
+    return null;
+}
+
+console.log(`\nPrimer cliente único: ${primerClienteUnico(ventas)}`);
 
 module.exports = {
     valorVenta,
