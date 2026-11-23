@@ -1,4 +1,5 @@
 const ventas = require('./datos');
+const { generarVentas } = require('./generador');
 
 const {
     totalVendido,
@@ -15,6 +16,13 @@ const {
     totalPorCiudad,
     ventasDelDia
 } = require('./analitica');
+
+const { clientesRecurrentes } = require('./recurrentes');
+
+const {
+    clientesRecurrentesSet,
+    clientesRecurrentesMap
+} = require('./optimizadas');
 
 function verificarPar(nombre, valorCiclo, valorMetodo) {
     const sonIguales = JSON.stringify(valorCiclo) === JSON.stringify(valorMetodo);
@@ -54,4 +62,28 @@ console.log(`\nDemostración de corrección de errores
 
 const diaSinVentas = ventasDelDia(ventas, "2026-09-07");
 console.log(`Ticket promedio de un día sin ventas: `, ticketPromedioM(diaSinVentas));
-    
+
+
+// ============================================================================
+// Verificación de clientes recurrentes (Original vs Set vs Map)
+// ============================================================================
+function verificarRecurrentes(dataset, etiqueta) {
+    const resOriginal = [...clientesRecurrentes(dataset)].sort();
+    const resSet = [...clientesRecurrentesSet(dataset)].sort();
+    const resMap = [...clientesRecurrentesMap(dataset)].sort();
+
+    const coinciden =
+        JSON.stringify(resOriginal) === JSON.stringify(resSet) &&
+        JSON.stringify(resSet) === JSON.stringify(resMap);
+
+    console.log(`[${etiqueta}] ¿Las 3 versiones coinciden?: ${coinciden ? "OK (SÍ)" : "ERROR (NO)"}`);
+    if (etiqueta === "Día 1 (12 ventas)") {
+        console.log("   Clientes recurrentes detectados:", resSet);
+    }
+    console.assert(coinciden, `ERROR: Discrepancia detectada en ${etiqueta}`);
+}
+
+console.log("\n=== 4. CONSISTENCIA DE CLIENTES RECURRENTES (ORIGINAL vs SET vs MAP) ===");
+verificarRecurrentes(ventas, "Día 1 (12 ventas)");
+verificarRecurrentes(generarVentas(5000), "Sintético (5.000 ventas)");
+

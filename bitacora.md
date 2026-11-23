@@ -489,5 +489,37 @@ Usando como referencia el tiempo medido para $n = 16.000$ (`1.474 s`):
 > - Aunque `totalCiudadCadena` expresa de forma declarativa cada paso de la transformación (`normalizar` $\rightarrow$ `filtrar` $\rightarrow$ `valorar` $\rightarrow$ `sumar`), desperdicia memoria creando tres arreglos desechables (`O(n)` en espacio) y recorre los datos cuatro veces.
 > - Por su parte, `totalCiudadUnaPasada` sigue siendo muy corta y fácil de leer (apenas 8 líneas con nombres descriptivos como `objetivo` y `valorVenta`), pero reduce la complejidad espacial a **$O(1)$** y realiza **un único recorrido**, haciéndola mucho más eficiente en CPU y memoria cuando el volumen de facturas de Café Origen escale a cientos de miles de registros.
 
+## Método de resolución de problemas
 
+### Análisis del problema: `clientesRecurrentes`
+
+**1. Entender (Entradas, Salidas y Restricciones):**
+
+- **Entrada:** Un arreglo `ventas` de objetos transaccionales (cada objeto contiene la propiedad `cliente`, además de `cantidad`, `fecha`, etc.).
+- **Salida:** Un arreglo de cadenas de texto (`string[]`) con los identificadores únicos de los clientes que realizaron **2 o más compras** (sin duplicados en el resultado).
+- **Restricciones:** No mutar el arreglo original `ventas`; manejar correctamente arreglos vacíos y variaciones de espacios en el ID del cliente (`trim()`).
+
+**2. Ejemplos y Casos Borde:**
+
+- *Caso normal:* `["C01", "C02", "C01", "C03", "C02"]` $\rightarrow$ `["C01", "C02"]`.
+- *Arreglo vacío (`[]`):* $\rightarrow$ `[]`.
+- *Un solo registro (`["C01"]`):* $\rightarrow$ `[]` (nadie puede ser recurrente con 1 sola venta).
+- *Todos los clientes distintos (`["C01", "C02", "C03"]`):* $\rightarrow$ `[]`.
+- *Un mismo cliente compra 5 veces (`["C01", "C01", "C01", "C01", "C01"]`):* $\rightarrow$ `["C01"]` (debe aparecer una sola vez en el resultado).
+
+**3. Fuerza Bruta y su Complejidad:**
+
+- **Enfoque:** Comparar cada registro `i` contra todos los registros posteriores `j` mediante dos ciclos `for` anidados, verificando además con `.includes()` si el cliente ya fue agregado.
+- **Complejidad:** Tiempo **$O(n^2)$** en el caso promedio (y hasta $O(n^3)$ en el peor caso por `.includes()`), con espacio auxiliar **$O(k)$** (donde $k$ es el número de recurrentes). Al multiplicar $n$ por 10, el tiempo se multiplica por 100.
+
+**4. Idea de Optimización:**
+
+- Eliminar el segundo ciclo `for` recordando el historial de clientes visitados en tiempo constante **$O(1)$** mediante tablas hash (`Set` o `Map`). En una única pasada sobre los datos ($O(n)$), si el cliente ya está en nuestro registro de "vistos", lo marcamos inmediatamente como recurrente.
+
+## Intercambio Tiempo vs. Memoria
+
+> **Intercambio entre Tiempo y Memoria (*Time-Space Tradeoff*):**
+>
+> - **Costo en Memoria ($O(n)$):** La versión original de fuerza bruta consumía memoria adicional mínima ($O(k)$, solo el arreglo con los IDs de clientes recurrentes), ya que no guardaba historial y recalculaba las coincidencias recorriendo el arreglo una y otra vez. En cambio, las soluciones con `Set` y `Map` reservan memoria extra proporcional a los clientes únicos del dataset ($O(U)$, y **$O(n)$** en el peor caso si todos los clientes son distintos) para almacenar el conjunto `vistos` o la tabla de frecuencias `compras`.
+> - **Ganancia en Tiempo ($O(n^2) \rightarrow O(n)$):** Gracias a ocupar esa memoria auxiliar con tablas hash (cuyas operaciones `.has()`, `.add()`, `.get()` y `.set()` cuestan **$O(1)$**), eliminamos por completo el segundo ciclo anidado. Esto reduce el tiempo de ejecución en $n = 100.000$ de **varios segundos** (fuerza bruta) a **menos de 15 milisegundos** (`Set` y `Map`), logrando una aceleración superior a $500\times$ a cambio de unos pocos kilobytes en RAM.
 

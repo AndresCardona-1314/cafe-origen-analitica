@@ -9,6 +9,13 @@ const {
     primeraVentaInst
 } = require('./instrumentadas');
 
+const { clientesRecurrentes } = require('./recurrentes');
+
+const {
+    clientesRecurrentesSet,
+    clientesRecurrentesMap
+} = require('./optimizadas');
+
 function medirEjecucion(fnInstrumentada, datos) {
     const contador = { operaciones: 0 };
     
@@ -40,3 +47,31 @@ for (const v of n) {
 
 console.log("=== NÚMERO DE OPERACIONES POR TAMAÑO DE ENTRADA (n) ===");
 console.table(resultado);
+
+
+// ============================================================================
+// Comparativa de tiempos O(n²) vs Set O(n) vs Map O(n)
+// ============================================================================
+function medirTiempoMs(fn, datos) {
+    const inicio = performance.now();
+    fn(datos);
+    const fin = performance.now();
+    return `${(fin - inicio).toFixed(3)} ms`;
+}
+
+
+const tablaTiempos = [];
+
+for (const v of n) {
+    const datosPrueba = generarVentas(v);
+
+    tablaTiempos.push({
+        n: v.toLocaleString("es-CO"),
+        "Original O(n²)": medirTiempoMs(clientesRecurrentes, datosPrueba),
+        "Set O(n)": medirTiempoMs(clientesRecurrentesSet, datosPrueba),
+        "Map O(n)": medirTiempoMs(clientesRecurrentesMap, datosPrueba)
+    });
+}
+
+console.log("\n=== TIEMPOS: clientesRecurrentes O(n²) vs O(n) ===");
+console.table(tablaTiempos);

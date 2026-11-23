@@ -29,7 +29,7 @@ function generarVentas(n){
     return ventasPrueba;
 }
 
-console.table(generarVentas(10));
+/* console.table(generarVentas(10)); */
 
 module.exports = {
     generarVentas

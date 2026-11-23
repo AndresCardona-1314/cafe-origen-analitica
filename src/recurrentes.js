@@ -26,7 +26,9 @@ for (const n of [1000, 2000, 4000, 8000, 16000, 100000]){
     console.timeEnd(`n = ${n.toLocaleString('es-CO')}`);
 } */
 
-
+module.exports = {
+    clientesRecurrentes
+};
 
 
 

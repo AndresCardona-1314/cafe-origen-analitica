@@ -290,7 +290,7 @@ module.exports = {
     totalPorCiudad,
     unidadesPorProducto,
     topProductosPorValor,
-    
+    normalizar
 };
 
 
