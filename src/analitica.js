@@ -9,6 +9,10 @@ const valorVenta = (venta) => venta.cantidad * venta.precio;
 
 const normalizar = (texto) => texto.trim().toLowerCase();
 
+module.exports.normalizar = normalizar;
+
+const { generarVentas } = require('./generador');
+
 // Total vendido
 
 function totalVendido(ventas) {
@@ -229,6 +233,47 @@ function ventasDelDia (ventas, fecha){
 console.log("\nVenta día: ", ventasDelDia(ventas,"2026-09-06"));
 
 
+
+/* function totalCiudadCadena(ventas, ciudad){
+    const objetivo = normalizar(ciudad);
+
+    return ventas
+        .map((v) => ({...v, ciudad: normalizar(v.ciudad)}))
+        .filter((v) => v.ciudad === objetivo && v.cantidad > 0)
+        .map((v) => valorVenta(v))
+        .reduce((acc, subtotal) => acc + subtotal, 0);
+}
+
+console.log(`\nTotal de Medellín: ${totalCiudadCadena(ventas, "Medellín")}`); */
+
+function totalCiudadUnaPasada(ventas, ciudad){
+    const objetivo = normalizar(ciudad);
+    let total = 0;
+
+    for (const v of ventas){
+        if (v.cantidad > 0 && normalizar(v.ciudad) === objetivo){
+            total += valorVenta(v);
+        }
+    }
+    return total;
+}
+
+console.log(`\nTotal Medellín una pasada: ${totalCiudadUnaPasada(ventas, "Medellín")}`);
+
+// ============================================================================
+// Verificación con 10.000 ventas generadas
+// ============================================================================
+/* const datos10k = generarVentas(10000);
+const resCadena = totalCiudadCadena(datos10k, "  MEDELLÍN ");
+const resUnaPasada = totalCiudadUnaPasada(datos10k, "  MEDELLÍN ");
+
+console.log(`\ntotalCiudadCadena (n = 10.000):    $${resCadena.toLocaleString("es-CO")}`);
+console.log(`totalCiudadUnaPasada (n = 10.000): $${resUnaPasada.toLocaleString("es-CO")}`);
+console.assert(resCadena === resUnaPasada, "ERROR: Los resultados no coinciden");
+console.log("Verificación exitosa: ambas devuelven exactamente el mismo valor."); */
+
+
+
 module.exports = {
     valorVenta,
     totalVendido,
@@ -245,7 +290,7 @@ module.exports = {
     totalPorCiudad,
     unidadesPorProducto,
     topProductosPorValor,
-    normalizar
+    
 };
 
 

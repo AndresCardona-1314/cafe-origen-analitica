@@ -422,3 +422,72 @@ Usando como referencia el tiempo medido para $n = 16.000$ (`1.474 s`):
 >
 > El reporte de clientes recurrentes se vuelve más lento cuando crece el volumen de ventas porque el sistema compara cada venta con todas las que aparecen después. Con pocas ventas, el proceso es rápido; al multiplicar por diez el historial, las comparaciones entre pares crecen aproximadamente cien veces.
 
+
+## Conteo de recorridos, arreglos creados y Big O
+
+| **Métrica** | **totalCiudadCadena** | **totalCiudadUnaPasada** |
+|---|---|---|
+| **Recorridos completos** | **4 pasadas** (`map` → `filter` → `map` → `reduce`) | **1 pasada** (`for...of`) |
+| **Arreglos nuevos creados** | **3 arreglos intermedios** (el primero de tamaño $n$, los otros dos de hasta tamaño $n$) | **0 arreglos** (solo variables primitivas `objetivo` y `total`) |
+| **Complejidad Temporal** | **$O(n)$** | **$O(n)$** |
+| **Complejidad Espacial (auxiliar)** | **$O(n)$** | **$O(1)$** |
+
+### ¿Por qué ambas son $O(n)$ en tiempo si una recorre 4 veces?
+
+> **Explicación:** En notación Big O se analiza la **tasa de crecimiento asintótico** cuando $n$ tiende a infinito, aplicando las **reglas de simplificación** (se eliminan las constantes multiplicativas y los términos de menor orden).
+>
+> - `totalCiudadCadena` ejecuta aproximadamente $4n$ pasos (4 pasadas de tamaño proporcional a $n$). Al eliminar la constante $4$, $O(4n)$ se simplifica a **$O(n)$**.
+> - `totalCiudadUnaPasada` ejecuta $1n$ pasos, lo que también equivale a **$O(n)$**.
+> - Ambas crecen de forma **lineal** (si $n$ se multiplica por 10, ambas tardan 10 veces más), aunque en la práctica `totalCiudadUnaPasada` tiene una constante menor y evita la presión sobre el recolector de basura (*Garbage Collector*) al no asignar arreglos intermedios.
+
+### Clasificación de complejidad espacial auxiliar
+
+> **Criterio:** Se mide la memoria adicional creada por la función, sin contar el arreglo `ventas` recibido como entrada. Si el resultado, un arreglo intermedio o un objeto acumulador puede crecer con $n$, la complejidad es $O(n)$; si solo conserva variables o referencias de tamaño constante, es $O(1)$.
+
+| Función / módulo | Memoria auxiliar | Clasificación | Justificación |
+|---|---|---|---|
+| `valorVenta(venta)` en `analitica.js` | Variables locales y resultado numérico | **$O(1)$** | Solo calcula `cantidad * precio`; no crea arreglos ni objetos cuya cantidad crezca con $n$. |
+| `normalizar(texto)` en `analitica.js` | Cadena normalizada | **$O(1)$** respecto al tamaño de `ventas` | Produce una cadena nueva, pero su tamaño depende del texto recibido y no del número de ventas. |
+| `totalVendido(ventas)` | `total` y variable de recorrido | **$O(1)$** | Usa acumuladores escalares y recorre directamente el arreglo recibido. |
+| `unidadesVendidas(ventas)` | `totalUnidades` y variable de recorrido | **$O(1)$** | No crea arreglos; acumula un entero. |
+| `ventaMayor(ventas)` | Referencia `mayor` | **$O(1)$** | Conserva una referencia al mayor registro y variables escalares. |
+| `ticketPromedio(ventas)` | `totalVentas` y `cantidadVentas` | **$O(1)$** | Solo conserva acumuladores numéricos. |
+| `ventasPorCiudad(ventas, ciudad)` | `total` y variable de recorrido | **$O(1)$** | El recorrido usa constantes auxiliares, sin crear resultados proporcionales a $n$. |
+| `totalVendidoM(ventas)` | Acumulador interno de `reduce` | **$O(1)$** | `reduce` mantiene un acumulador escalar. |
+| `ventaMayorM(ventas)` | Acumulador interno de `reduce` | **$O(1)$** | Conserva una referencia a la venta mayor y no crea arreglos adicionales. |
+| `unidadesVendidasM(ventas)` | Arreglo creado por `filter` | **$O(n)$** | `.filter()` crea un arreglo con hasta $n$ ventas válidas antes de ejecutar `reduce`. |
+| `ventasPorCiudadM(ventas, ciudad)` | Arreglo creado por `filter` | **$O(n)$** | `.filter()` genera un arreglo intermedio de hasta $n$ elementos. |
+| `ticketPromedioM(ventas)` | Arreglo `validas` | **$O(n)$** | El arreglo `validas` puede contener hasta $n$ ventas antes de calcular el promedio. |
+| `totalPorCiudad(ventas)` | Objeto acumulador `acc` con una clave por ciudad | **$O(n)$** | En el peor caso existen hasta $n$ ciudades distintas, por lo que el objeto puede contener $n$ entradas. |
+| `unidadesPorProducto(ventas)` | Arreglo de `filter` y objeto acumulador | **$O(n)$** | El filtro puede crear hasta $n$ elementos y el objeto puede tener hasta $n$ productos distintos. |
+| `topProductosPorValor(ventas, k)` | Objetos, arreglos de agrupación, entradas y resultados | **$O(n)$** | Crea un arreglo de hasta $n$ mediante `filter`, otro objeto con hasta $n$ productos, `Object.entries()` y `map()` con hasta $n$ elementos. Aunque `slice(0, k)` limita el resultado, los arreglos temporales siguen siendo proporcionales a $n$. |
+| `ventasDelDia(ventas, fecha)` | Arreglo creado por `filter` | **$O(n)$** | El resultado puede contener hasta $n$ ventas del día solicitado. |
+| `totalCiudadCadena(ventas, ciudad)` | Tres arreglos intermedios encadenados | **$O(n)$** | La cadena usa hasta tres arreglos temporales de tamaño proporcional a $n$: el primero con copias normalizadas, el segundo con coincidencias y el tercero con subtotales. |
+| `totalCiudadUnaPasada(ventas, ciudad)` | `objetivo` y `total` | **$O(1)$** | Procesa ventas con un solo recorrido y solo conserva variables escalares, sin arreglos auxiliares. |
+| `generarVentas(n)` | Arreglo `ventasPrueba` con $n$ objetos | **$O(n)$** | `ventasPrueba.push()` reserva memoria para $n$ ventas generadas; el resultado crece proporcionalmente con $n$. |
+| `clientesRecurrentes(ventas)` | Arreglo `recurrentes` | **$O(n)$** | En el peor caso puede agregar hasta $n$ clientes distintos al arreglo de salida. |
+| `totalVendidoInst(ventas, contador)` | Acumulador `total` y contador externo | **$O(1)$** | No crea estructuras dependientes de $n$; solo usa variables escalares y el contador recibido. |
+| `ventaMayorInst(ventas, contador)` | Referencia `mayor` y contador externo | **$O(1)$** | Conservar una venta y el contador no depende de la cantidad de registros. |
+| `primeraVentaInst(ventas, contador)` | Referencia a un elemento y contador externo | **$O(1)$** | Solo verifica la longitud y devuelve `ventas[0]`. |
+| `totalPorCiudadInst(ventas, contador)` | Objeto `totales` con una clave por ciudad | **$O(n)$** | En el peor caso crea una entrada por ciudad distinta en el objeto acumulador. |
+| `medirEjecucion(fnInstrumentada, datos)` en `medir.js` | Contador y cadena de resultado | **$O(1)$** | Usa un objeto contador constante y devuelve texto; no almacena una copia por cada dato medido. |
+| `reporte.js: formatearListaVentas(lista)` | Nuevo arreglo creado por `map` | **$O(n)$** | Devuelve una copia formateada con hasta un elemento por venta de la lista. |
+
+### Observaciones principales
+
+- **Funciones constantes:** Las funciones de suma, conteo, máximo, promedio directo, comparación por ciudad y recorridos simples usan memoria auxiliar $O(1)$.
+- **Funciones con salida o agrupación proporcional:** `ticketPromedioM`, `totalPorCiudad`, `unidadesPorProducto`, `topProductosPorValor`, `ventasDelDia`, `generarVentas` y `clientesRecurrentes` necesitan memoria proporcional a $n$ o al número de grupos/resultados distintos.
+- **Caso especial `topProductosPorValor`:** Aunque el método final sea `.slice(0, k)`, la función antes crea estructuras temporales para filtrar, agrupar, convertir a entradas, ordenar y proyectar los productos. Por eso su complejidad espacial auxiliar es $O(n)$, no $O(k)$.
+- **Caso especial `totalPorCiudad`:** El número de claves distintas está acotado por $n$, aunque el dataset real tenga pocas ciudades. La clasificación asintótica se define por el posible peor caso, por lo que es $O(n)$.
+
+### Decisión de diseño para el motor (`analitica.js`)
+
+> **Decisión:** Se deja **`totalCiudadUnaPasada`** como implementación oficial dentro de `analitica.js`.
+>
+> **Justificación (Legibilidad vs. Recursos):**
+>
+> - Aunque `totalCiudadCadena` expresa de forma declarativa cada paso de la transformación (`normalizar` $\rightarrow$ `filtrar` $\rightarrow$ `valorar` $\rightarrow$ `sumar`), desperdicia memoria creando tres arreglos desechables (`O(n)` en espacio) y recorre los datos cuatro veces.
+> - Por su parte, `totalCiudadUnaPasada` sigue siendo muy corta y fácil de leer (apenas 8 líneas con nombres descriptivos como `objetivo` y `valorVenta`), pero reduce la complejidad espacial a **$O(1)$** y realiza **un único recorrido**, haciéndola mucho más eficiente en CPU y memoria cuando el volumen de facturas de Café Origen escale a cientos de miles de registros.
+
+
+

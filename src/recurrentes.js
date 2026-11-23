@@ -17,14 +17,14 @@ function clientesRecurrentes(ventas){
     
 }
 
-console.log('\nClientes recurrentes: ', clientesRecurrentes(ventas));
+/* console.log('\nClientes recurrentes: ', clientesRecurrentes(ventas));
 
 for (const n of [1000, 2000, 4000, 8000, 16000, 100000]){
     const ventasPrueba = generarVentas(n);
     console.time(`n = ${n.toLocaleString('es-CO')}`);
     clientesRecurrentes(ventasPrueba);
     console.timeEnd(`n = ${n.toLocaleString('es-CO')}`);
-}
+} */
 
 
 
