@@ -551,4 +551,18 @@ return ["Origen Huila 500 g", "Origen Sierra 500 g"];
 | **`productoEstrellaPorCiudad`** | **$O(n)$** | **$O(n)$** *(o $O(C \cdot P)$)* | El primer recorrido visita las $n$ ventas ($O(n)$) actualizando los `Map` en $O(1)$. El segundo recorrido visita cada combinación ciudad-producto única ($k \le n$), por lo que $O(n + k) = \mathbf{O(n)}$. En memoria guarda hasta $n$ entradas en el peor caso donde cada venta tenga ciudad y producto únicos. |
 | **`primerClienteUnico`** | **$O(n)$** | **$O(n)$** | Ejecuta **dos recorridos independientes y secuenciales** de longitud $n$ ($n + n = 2n \rightarrow \mathbf{O(n)}$ tras eliminar constantes). El `Map` almacena hasta $U$ clientes únicos ($O(n)$ en el peor caso donde ningún cliente repita compra). |
 
+#### Dibujo de las 3 primeras posiciones de la ventana
 
+```plaintext
+Arreglo: [ 320,  410,  280,  390,  510,  620,  700,  300,  290,  450 ... ]
+Índices:    0     1     2     3     4     5     6     7     8     9
+
+Posición 1 (Días 1 al 7 — suma inicial):
+         [ 320 + 410 + 280 + 390 + 510 + 620 + 700 ] = 3.230
+
+Posición 2 (Días 2 al 8 — sale 320, entra 300):
+           320 [ 410 + 280 + 390 + 510 + 620 + 700 + 300 ] = 3.230 - 320 + 300 = 3.210
+
+Posición 3 (Días 3 al 9 — sale 410, entra 290):
+           320   410 [ 280 + 390 + 510 + 620 + 700 + 300 + 290 ] = 3.210 - 410 + 290 = 3.090
+```

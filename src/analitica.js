@@ -3,6 +3,7 @@
 const ventas = require('./datos');
 
 
+
 const valorVenta = (venta) => venta.cantidad * venta.precio;
 
 // Se normaliza el texto
@@ -346,6 +347,65 @@ function primerClienteUnico(ventas){
 }
 
 console.log(`\nPrimer cliente único: ${primerClienteUnico(ventas)}`);
+
+
+
+const ventasDiarias = [320, 410, 280, 390, 510, 620, 700, 300, 290, 450,
+480, 530, 610, 680, 350, 330, 420, 470, 560, 640,
+710, 380, 360, 440, 500, 590, 650, 720, 400, 370];
+
+
+function mejorSemanaBruta(dias, k){
+    if (k <= 0 || k > dias.length) return null;
+    let maxTotal = -Infinity;
+    let diaInicio = -1;
+
+    for (let i = 0; i <= dias.length - k; i++){
+        let total = 0;
+        for (let j = i; j < i + k; j++){
+            total = total + dias[j];
+        }
+        if (total > maxTotal){
+            maxTotal = total;
+            diaInicio = i;
+        }
+
+    }
+    return {total: maxTotal, inicio: diaInicio};
+}
+
+console.log(`\nMejor semana:  `, mejorSemanaBruta(ventasDiarias,7));
+
+
+function mejorSemana(dias, k){
+    if (k <= 0 || k > dias.length) return null;
+
+    let totalActual = 0;
+
+    for (let j = 0; j < k; j++){
+        totalActual = totalActual + dias[j];
+
+    }
+
+    let maxTotal = totalActual;
+    let diaInicio = 0;
+
+    for (let i = k; i < dias.length; i++){
+        totalActual = totalActual + dias[i] - dias[i - k];
+        
+        if (totalActual > maxTotal){
+            maxTotal = totalActual;
+            diaInicio = i - k + 1;
+        }
+    }
+
+    return {total: maxTotal, inicio: diaInicio};
+
+
+}
+
+console.log(`\nMejor semana (ventanas):  `, mejorSemanaBruta(ventasDiarias,7));
+
 
 module.exports = {
     valorVenta,
