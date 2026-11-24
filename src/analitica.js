@@ -10,6 +10,8 @@ const valorVenta = (venta) => venta.cantidad * venta.precio;
 
 const normalizar = (texto) => texto.trim().toLowerCase();
 
+const { catalogo } = require('./catalogo');
+
 module.exports.normalizar = normalizar;
 
 const { generarVentas } = require('./generador');
@@ -374,7 +376,7 @@ function mejorSemanaBruta(dias, k){
     return {total: maxTotal, inicio: diaInicio};
 }
 
-console.log(`\nMejor semana:  `, mejorSemanaBruta(ventasDiarias,7));
+/* console.log(`\nMejor semana:  `, mejorSemanaBruta(ventasDiarias,7)); */
 
 
 function mejorSemana(dias, k){
@@ -404,7 +406,74 @@ function mejorSemana(dias, k){
 
 }
 
-console.log(`\nMejor semana (ventanas):  `, mejorSemanaBruta(ventasDiarias,7));
+/* console.log(`\nMejor semana (ventanas):  `, mejorSemanaBruta(ventasDiarias,7)); */
+
+// ============================================================================
+// Verificación en septiembre y con 100.000 días
+// ============================================================================
+
+console.log("\n=== SEPTIEMBRE (30  días, k=7) ===");
+console.log("Mejor semana (bruta): ", mejorSemanaBruta(ventasDiarias, 7));
+console.log("Mejor semana (ventana): ", mejorSemana(ventasDiarias, 7));
+
+
+const dias100k = Array.from({length: 100000}, () => Math.floor(Math.random() * 601) + 200);  
+
+console.log("\n=== BENCHMARK: 100.000 DÍAS (k = 1.000) ===");
+let t0 = performance.now();
+const resB = mejorSemanaBruta(dias100k, 1000);
+let t1 = performance.now();
+
+let t2 = performance.now();
+const resV = mejorSemana(dias100k, 1000);
+let t3 = performance.now();
+
+console.assert(JSON.stringify(resB) === JSON.stringify(resV), "ERROR: Resultados distintos");
+console.log(`Mejores k ventas (bruta): ${(t1 - t0).toFixed(3)} ms ->`, resB);
+console.log(`Mejores k ventas (ventana): ${(t3 - t2).toFixed(3)} ms ->`, resV);
+
+function parMasCercano(precios, presupuesto){
+    if (precios.length < 2) return null;
+
+    const preciosOrdenados = [...precios].sort((a, b) => a.precio - b.precio);
+
+    let punteroIzq = 0;
+    let punteroDer = preciosOrdenados.length - 1;
+    let mejorSuma = -1;
+    let mejorPar = null;
+
+    while(punteroIzq < punteroDer){
+        const sumaActual = preciosOrdenados[punteroIzq].precio + preciosOrdenados[punteroDer].precio;
+
+        if (sumaActual <= presupuesto){
+            if (sumaActual > mejorSuma){
+                mejorSuma = sumaActual;
+                mejorPar = [preciosOrdenados[punteroIzq], preciosOrdenados[punteroDer]];
+
+            }
+
+            if (sumaActual === presupuesto) break;
+
+            punteroIzq++;
+
+        }
+
+        else{
+            punteroDer--;
+        }
+    }
+
+    return mejorPar;
+
+}
+
+// ============================================================================
+// Pruebas con 100.000, 140.000 y 40.000
+// ============================================================================
+console.log("\n=== PRUEBAS PAR MÁS CERCANO AL PRESUPUESTO ===");
+console.log("Presupuesto $100.000:", parMasCercano(catalogo, 100000));
+console.log("Presupuesto $140.000:", parMasCercano(catalogo, 140000));
+console.log("Presupuesto $40.000: ", parMasCercano(catalogo, 40000));
 
 
 module.exports = {
@@ -424,6 +493,7 @@ module.exports = {
     unidadesPorProducto,
     topProductosPorValor,
     normalizar
+    
 };
 
 

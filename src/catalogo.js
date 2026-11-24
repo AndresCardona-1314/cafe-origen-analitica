@@ -47,3 +47,6 @@ console.log(`\nCombo $61.000: ${comboRegalo(catalogo, 61000)} `);
 console.log(`Combo $61.000 (Map): ${comboRegaloMap(catalogo, 61000)} `);
 console.log(`\nCombo $50.000: ${comboRegalo(catalogo, 50000)}`);
 console.log(`Combo $50.000 (Map): ${comboRegalo(catalogo, 50000)}`);
+
+
+module.exports = {catalogo};

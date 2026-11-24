@@ -87,3 +87,4 @@ console.log("\n=== 4. CONSISTENCIA DE CLIENTES RECURRENTES (ORIGINAL vs SET vs M
 verificarRecurrentes(ventas, "Día 1 (12 ventas)");
 verificarRecurrentes(generarVentas(5000), "Sintético (5.000 ventas)");
 
+

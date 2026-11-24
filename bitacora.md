@@ -551,7 +551,7 @@ return ["Origen Huila 500 g", "Origen Sierra 500 g"];
 | **`productoEstrellaPorCiudad`** | **$O(n)$** | **$O(n)$** *(o $O(C \cdot P)$)* | El primer recorrido visita las $n$ ventas ($O(n)$) actualizando los `Map` en $O(1)$. El segundo recorrido visita cada combinación ciudad-producto única ($k \le n$), por lo que $O(n + k) = \mathbf{O(n)}$. En memoria guarda hasta $n$ entradas en el peor caso donde cada venta tenga ciudad y producto únicos. |
 | **`primerClienteUnico`** | **$O(n)$** | **$O(n)$** | Ejecuta **dos recorridos independientes y secuenciales** de longitud $n$ ($n + n = 2n \rightarrow \mathbf{O(n)}$ tras eliminar constantes). El `Map` almacena hasta $U$ clientes únicos ($O(n)$ en el peor caso donde ningún cliente repita compra). |
 
-#### Dibujo de las 3 primeras posiciones de la ventana
+### Dibujo de las 3 primeras posiciones de la ventana
 
 ```plaintext
 Arreglo: [ 320,  410,  280,  390,  510,  620,  700,  300,  290,  450 ... ]
@@ -566,3 +566,53 @@ Posición 2 (Días 2 al 8 — sale 320, entra 300):
 Posición 3 (Días 3 al 9 — sale 410, entra 290):
            320   410 [ 280 + 390 + 510 + 620 + 700 + 300 + 290 ] = 3.210 - 410 + 290 = 3.090
 ```
+
+
+
+
+## Traza de los punteros para Presupuesto = `$100.000`
+
+Catálogo ordenado por precio:
+
+`[0: $18.000 Filtros, 1: $26.000 Nariño, 2: $35.000 Taza, 3: $42.000 Huila 500 g, 4: $45.000 Sierra, 5: $79.000 Huila 1 kg, 6: $95.000 Prensa, 7: $120.000 Molino]`
+
+| **Paso** | **izq (Precio)** | **der (Precio)** | **sumaActual** | **Comparación vs $100.000** | **Acción y estado de mejorPar** |
+|:---|:---|:---|:---|:---|:---|
+| **1** | `0` ($18.000) | `7` ($120.000) | `$138.000` | `$138.000 > $100.000` (Se pasa) | Baja `der--` (`7 -> 6`). `mejorPar = null` |
+| **2** | `0` ($18.000) | `6` ($95.000) | `$113.000` | `$113.000 > $100.000` (Se pasa) | Baja `der--` (`6 -> 5`). `mejorPar = null` |
+| **3** | `0` ($18.000) | `5` ($79.000) | `$97.000` | `$97.000 <= $100.000` (Válido) | Guarda `[Filtros $18k, Huila 1 kg $79k]` (`$97k`). Sube `izq++` (`0 -> 1`) |
+| **4** | `1` ($26.000) | `5` ($79.000) | `$105.000` | `$105.000 > $100.000` (Se pasa) | Baja `der--` (`5 -> 4`). `mejorPar` sigue siendo `[Filtros $18k, Huila 1 kg $79k]` (`$97k`) |
+| **5** | `1` ($26.000) | `4` ($45.000) | `$71.000` | `$71.000 <= $100.000` (Válido) | No mejora la cercanía de `$97k`. Conserva `[Filtros $18k, Huila 1 kg $79k]`. Sube `izq++` (`1 -> 2`) |
+| **6** | `2` ($35.000) | `4` ($45.000) | `$80.000` | `$80.000 <= $100.000` (Válido) | No mejora la cercanía de `$97k`. Conserva `[Filtros $18k, Huila 1 kg $79k]`. Sube `izq++` (`2 -> 3`) |
+| **7** | `3` ($42.000) | `4` ($45.000) | `$87.000` | `$87.000 <= $100.000` (Válido) | No mejora la cercanía de `$97k`. Conserva `[Filtros $18k, Huila 1 kg $79k]`. Sube `izq++` (`3 -> 4`) |
+| **Fin** | `4` | `4` | — | `izq < der` es `false` | Termina y devuelve **`[Filtros de papel x100, Origen Huila 1 kg]`** (`$97.000`). |
+
+
+
+
+
+
+
+## Clasificación de Complejidad para la Bitácora
+
+| **Función** | **Complejidad Temporal** | **Complejidad Espacial** | **Justificación Técnica** |
+|:---|:---|:---|:---|
+| **`mejorSemanaBruta(dias, k)`** | **$O(n \cdot k)$** | **$O(1)$** | Por cada una de las $n - k + 1$ posiciones posibles, ejecuta un ciclo interno de $k$ sumas. Si $k$ es fijo ($7$), se comporta lineal, pero cuando $k$ crece proporcional a $n$ (ej. $k = n/2$), escala como **$O(n^2)$**. Solo usa variables numéricas escalares ($O(1)$). |
+| **`mejorSemana(dias, k)`** | **$O(n)$** | **$O(1)$** | Cada elemento del arreglo entra una vez y sale una vez de la ventana en operaciones de suma/resta $O(1)$. El tiempo es estrictamente lineal sin importar qué tan grande sea $k$, y no crea arreglos auxiliares ($O(1)$). |
+| **`parMasCercano(precios, presupuesto)`** | **$O(n \log n)$** | **$O(n)$** | El algoritmo de dos punteros (`while (izq < der)`) recorre el arreglo una sola vez en **$O(n)$**, pero el paso previo de ordenar los precios con `.sort()` tiene costo **$O(n \log n)$**. Como $n \log n$ domina sobre $n$, la complejidad total es **$O(n \log n)$** en tiempo y **$O(n)$** en espacio por la copia ordenada `[...productos]`. *(Si el catálogo ya viniera ordenado, sería $O(n)$ tiempo y $O(1)$ espacio).* |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

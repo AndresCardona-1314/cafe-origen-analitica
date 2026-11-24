@@ -1,4 +1,4 @@
-const { valorVenta } = require("./analitica");
+
 
 const ventas = [
     {id: 1, fecha: "2026-09-01", cliente: "C01", producto: "Origen Huila 500 g", ciudad: "Medellín", cantidad: 2, precio: 42000},
