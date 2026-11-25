@@ -30,6 +30,23 @@ Las mediciones se realizaron en el entorno actual con datos sintéticos de 10.00
 | `ventaMayorInst(ventas, contador)` | Versión instrumentada de venta mayor | $O(n)$ | $O(1)$ | Una comparación instrumentada por recorrido. | 10.000 operaciones instrumentadas esperadas. |
 | `totalPorCiudadInst(ventas, contador)` | Versión instrumentada de agrupación por ciudad | $O(n)$ | $O(n)$ | Cada venta visita el objeto `totales`, que puede tener hasta $n$ claves. | 10.000 operaciones instrumentadas esperadas. |
 | `primeraVentaInst(ventas, contador)` | Devuelve la primera venta o `null` | $O(1)$ | $O(1)$ | Solo accede al índice 0 o verifica el arreglo vacío. | 1 operación instrumentada. |
+| `azar(min, max)` | Genera un entero aleatorio dentro del rango indicado | $O(1)$ | $O(1)$ | Una llamada a `Math.random()` y operaciones aritméticas constantes. | Al generar 10.000 ventas: 60.000 llamadas (6 por venta). |
+| `comboRegalo(catalogo, valor)` | Encuentra dos productos cuyo precio suma el valor objetivo | $O(m^2)$ | $O(1)$ | Compara los pares de productos, donde $m$ es el tamaño del catálogo, sin estructuras auxiliares proporcionales. | Con 8 productos: hasta 28 pares; para el combo de `$87.000` retorna tras 8 comparaciones. |
+| `comboRegaloMap(catalogo, valor)` | Encuentra el mismo combo con una búsqueda por complemento | $O(m)$ promedio | $O(m)$ | Recorre el catálogo una vez y guarda precios vistos en un `Map`. | Con 8 productos: el combo de `$87.000` se encuentra en 3 iteraciones; máximo 8. |
+| `productoEstrellaPorCiudad(ventas)` | Encuentra el producto con más apariciones por ciudad y desempata por unidades | $O(n)$ promedio | $O(n)$ | Agrupa ciudades y productos en `Map`; el segundo recorrido visita las combinaciones agrupadas, cuyo total no supera $n$. | Con 10.000 ventas sintéticas: 10.000 actualizaciones y hasta 20 combinaciones ciudad-producto revisadas (5 productos × 4 ciudades). |
+| `primerClienteUnico(ventas)` | Devuelve el primer cliente que aparece una sola vez | $O(n)$ promedio | $O(u)$ | Cuenta frecuencias en un `Map` y hace un segundo recorrido hasta hallar frecuencia 1; $u$ es el número de clientes distintos. | Con 10.000 ventas: 10.000 actualizaciones de frecuencia y hasta 10.000 comprobaciones de cliente (máximo 20.000 visitas). |
+| `mejorSemanaBruta(dias, k)` | Encuentra la ventana de $k$ días con mayor total recalculando cada suma | $O((d-k+1)k)$ | $O(1)$ | Para cada inicio válido vuelve a sumar $k$ valores; $d$ es la cantidad de días. | Con 100.000 días y $k=1.000$: 99.001 ventanas, 99.001.000 sumas y 99.001 comparaciones del máximo. |
+| `mejorSemana(dias, k)` | Encuentra la ventana de $k$ días con mayor total usando ventana deslizante | $O(d)$ | $O(1)$ | Suma la ventana inicial y luego actualiza el total agregando un día y quitando otro. | Con 100.000 días y $k=1.000$: 1.000 sumas iniciales, 99.000 actualizaciones (199.000 sumas/restas en total) y 99.000 comparaciones. |
+| `parMasCercano(precios, presupuesto)` | Encuentra el par de precios con mayor suma que no supera el presupuesto | $O(m\log m)$ | $O(m)$ | Copia y ordena los $m$ elementos, luego busca el par con dos punteros en $O(m)$. | Con el catálogo de 8 precios y presupuesto `$100.000`: 8 precios ordenados y 6 comparaciones con los dos punteros. |
+| `clientesRecurrentesSet(ventas)` | Encuentra clientes repetidos con conjuntos | $O(n)$ promedio | $O(n)$ | Recorre las ventas una vez y usa dos `Set` para clientes vistos y recurrentes. | Con 10.000 ventas: 10.000 comprobaciones `Set.has()` y 10.000 llamadas a `Set.add()`. |
+| `comprasPorCliente(ventas)` | Cuenta las compras de cada cliente | $O(n)$ promedio | $O(u)$ | Una pasada actualiza un `Map` con una entrada por cliente distinto; $u \le n$. | Con 10.000 ventas: 10.000 actualizaciones del `Map`; hasta 3.333 claves distintas con el generador del proyecto. |
+| `clientesRecurrentesMap(ventas)` | Devuelve clientes con dos o más compras usando frecuencias | $O(n)$ promedio | $O(u)$ | Construye frecuencias con `comprasPorCliente` y recorre las $u$ claves para seleccionar recurrentes. | Con 10.000 ventas: 10.000 actualizaciones de frecuencia y hasta 3.333 comprobaciones de clientes distintos. |
+| `formatearCOP(valor)` | Convierte un importe a texto con formato monetario colombiano | $O(d)$ | $O(d)$ | `toLocaleString()` procesa y crea texto proporcional a sus $d$ dígitos; $d$ es pequeño para los importes del reporte. | En el reporte de 10.000 ventas: hasta 31 conversiones, con 4 ciudades, top 3 y dos muestras de hasta 5 ventas. |
+| `formatearListaVentas(lista, limite)` | Prepara una muestra formateada de ventas para el reporte | $O(q)$ | $O(q)$ | `slice()` y `map()` procesan hasta $q=\min(n,\text{limite})$ ventas y crean la muestra resultante. | En el reporte: 2 llamadas, máximo 5 ventas por llamada (hasta 10 filas formateadas). |
+| `medirEjecucion(fnInstrumentada, datos)` | Mide una ejecución instrumentada y devuelve operaciones y tiempo | $O(T_f(n))$ | $O(S_f(n))$ | Ejecuta una vez `fnInstrumentada`; el costo depende de la función recibida, más trabajo constante de medición y formato. | Para $n=10.000$: 4 llamadas registran 10.000 + 10.000 + 10.000 + 1 = 30.001 operaciones instrumentadas. |
+| `medirTiempoMs(fn, datos)` | Mide el tiempo de una función sobre un dataset | $O(T_f(n))$ | $O(S_f(n))$ | Ejecuta una vez `fn`; la complejidad temporal y espacial dependen de esa función. | Para $n=10.000$: 3 mediciones, una ejecución cada una (versión original, `Set` y `Map`). |
+| `verificarPar(nombre, valorCiclo, valorMetodo)` | Compara dos resultados e informa si son iguales | $O(r)$ | $O(r)$ | Serializa ambos resultados con `JSON.stringify`; $r$ representa el tamaño de los resultados. | En el dataset de 10.000 ventas: 5 verificaciones de pares de resultados. |
+| `verificarRecurrentes(dataset, etiqueta)` | Compara y valida las versiones de clientes recurrentes | $O(n^2)$ | $O(n)$ | Ejecuta la versión original cuadrática, las versiones optimizadas y ordena sus resultados para compararlos. | Proyección para 10.000 ventas: 49.995.000 comparaciones de pares en la versión original, más los recorridos y ordenamientos de resultados. |
 
 ## Proyección
 
@@ -82,3 +99,16 @@ El riesgo se ordena por combinación de complejidad, memoria auxiliar y probabil
 - Opcionalmente, un objeto o `Map` con la cantidad de apariciones por cliente si el reporte necesitara más que la simple presencia.
 
 Con estas estructuras, habría una búsqueda promedio $O(1)$ por cliente y el recorrido completo sería lineal $O(n)$, dejando el resultado recurrente en memoria proporcional al número de clientes repetidos, $O(k)$, donde $k \le n$.
+
+## Análisis de Rendimiento — Café Origen
+
+### 1. Comparativa de Tiempo Total: Reporte v0.1 vs. Reporte v1.0
+
+En la versión **v0.1**, el cuello de botella principal era la detección de clientes recurrentes por fuerza bruta ($O(n^2)$) y los recorridos múltiples innecesarios. En la **v1.0**, las consultas sobre transacciones operan en tiempo lineal **$O(n)$** mediante tablas hash (`Set` y `Map`), ventana deslizante y acumulación en una sola pasada.
+
+Los tiempos de la siguiente tabla incluyen la impresión real del reporte:
+
+| Volumen de ventas ($n$) | Tiempo Reporte v0.1 (Fuerza Bruta) | Tiempo Reporte v1.0 (Optimizado) | Mejora Observada |
+| :--- | :---: | :---: | :---: |
+| **$10.000$ registros** | `652.194 ms` | `23.534 ms` | **27.7× más rápido** |
+| **$100.000$ registros** | `85352.928 ms` | `131.998 ms` | **646.6× más rápido** |

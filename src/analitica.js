@@ -492,7 +492,12 @@ module.exports = {
     totalPorCiudad,
     unidadesPorProducto,
     topProductosPorValor,
-    normalizar
+    normalizar,
+    productoEstrellaPorCiudad,
+    primerClienteUnico,
+    parMasCercano,
+    mejorSemana,
+    ventasDiarias
     
 };
 

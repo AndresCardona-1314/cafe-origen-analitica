@@ -601,6 +601,61 @@ Catálogo ordenado por precio:
 | **`mejorSemana(dias, k)`** | **$O(n)$** | **$O(1)$** | Cada elemento del arreglo entra una vez y sale una vez de la ventana en operaciones de suma/resta $O(1)$. El tiempo es estrictamente lineal sin importar qué tan grande sea $k$, y no crea arreglos auxiliares ($O(1)$). |
 | **`parMasCercano(precios, presupuesto)`** | **$O(n \log n)$** | **$O(n)$** | El algoritmo de dos punteros (`while (izq < der)`) recorre el arreglo una sola vez en **$O(n)$**, pero el paso previo de ordenar los precios con `.sort()` tiene costo **$O(n \log n)$**. Como $n \log n$ domina sobre $n$, la complejidad total es **$O(n \log n)$** en tiempo y **$O(n)$** en espacio por la copia ordenada `[...productos]`. *(Si el catálogo ya viniera ordenado, sería $O(n)$ tiempo y $O(1)$ espacio).* |
 
+## Cierre de Bitácora — Evolución del Motor `cafe-origen-analitica` (12 MiniRetos)
+
+A lo largo de los **12 MiniRetos** de la semana transformamos un conjunto de datos estático de 12 ventas en un motor de analítica comercial escalable, verificable y optimizado en tiempo y espacio.
+
+### Resumen por MiniReto y Estrategia de Resolución
+
+1. **MiniReto 1 — Exploración Inicial del Dataset (`src/datos.js` y `src/explorar.js`)**
+
+- **Construcción:** Creación de la estructura base de transacciones del Día 1 e inspección inicial de longitud, extremos (`ventas[0]`, `ventas[length - 1]`) y campos de negocio.
+- **Estrategia:** Diagnóstico temprano de calidad de datos, detectando inconsistencias de formato (espacios en blanco, mayúsculas/minúsculas mixtas en ciudades) y registros con cantidad `0`.
+2. **MiniReto 2 — Funciones Base de Agregación y Normalización (`src/analitica.js`)**
+
+- **Construcción:** Implementación de `normalizar`, `valorVenta`, `totalVendido`, `unidadesVendidas`, `ventaMayor`, `ticketPromedio` y `ventasPorCiudad` usando ciclos `for...of`.
+- **Estrategia:** Acumulación en una sola pasada ($O(n)$ tiempo, $O(1)$ espacio) y manejo explícito de casos borde (arreglos vacíos `[]` retornando `0` o `null` para evitar `NaN` o fallos de índice).
+3. **MiniReto 3 — Refactorización Declarativa y Pruebas de Consistencia (`src/verificar.js`)**
+
+- **Construcción:** Equivalentes funcionales (`totalVendidoM`, `unidadesVendidasM`, `ventaMayorM`, `ticketPromedioM`, `ventasPorCiudadM`) con `.filter()` y `.reduce()`, junto con la suite `verificarPar`.
+- **Estrategia:** Validación automatizada de equivalencia exacta (`JSON.stringify`) entre código imperativo y declarativo bajo entradas normales, unitarias y vacías.
+4. **MiniReto 4 — Agrupación por Dimensiones y Ranking (`totalPorCiudad`, `unidadesPorProducto`, `topProductosPorValor`, `ventasDelDia`)**
+
+- **Construcción:** Consolidación de métricas por ciudad y producto, filtrado por fecha y generación del Top $k$ de productos por ingresos.
+- **Estrategia:** Uso de objetos diccionario como tablas hash de acceso promedio $O(1)$ para agrupar en una sola pasada ($O(n)$) y ordenamiento descendente de los $u$ productos únicos en $O(u \log u)$, donde $u$ es la cantidad de productos distintos.
+5. **MiniReto 5 — Generador Sintético e Instrumentación Empírica (`src/generador.js` y `src/instrumentadas.js`)**
+
+- **Construcción:** Generador aleatorio de $n$ ventas (`generarVentas`) y versiones instrumentadas con contador por referencia (`{ operaciones: 0 }`).
+- **Estrategia:** Medición exacta del número de iteraciones ejecutadas independientemente de la velocidad del hardware para demostrar comportamiento asintótico.
+6. **MiniReto 6 — Benchmarking Temporal y Contraste $O(1)$ vs. $O(n)$ (`src/medir.js`)**
+
+- **Construcción:** Incorporación de `primeraVenta` ($O(1)$) y medición de tiempos con `performance.now()` para $n = 100$ hasta $100.000$.
+- **Estrategia:** Aislamiento de la generación de datos fuera del cronómetro para comprobar que $O(1)$ permanece invariable ($1$ operación) mientras $O(n)$ escala proporcionalmente ($\times 10$).
+7. **MiniReto 7 — Análisis de Fuerza Bruta Cuadrática (`src/recurrentes.js`)**
+
+- **Construcción:** Implementación inicial de `clientesRecurrentes` con dos ciclos `for` anidados y medición con `console.time`/`console.timeEnd`.
+- **Estrategia:** Traza matemática ($\frac{n(n-1)}{2}$ comparaciones) y detección del costo adicional de `.includes()`, demostrando por qué duplicar $n$ cuadruplica el número de comparaciones ($O(n^2)$) y hace inviable escalar a millones de registros.
+8. **MiniReto 8 — Complejidad Espacial y Una Sola Pasada (`totalCiudadCadena` vs. `totalCiudadUnaPasada`)**
+
+- **Construcción:** Comparación entre encadenamiento de 4 pasadas (`map-filter-map-reduce`) frente a un único recorrido imperativo sin arreglos intermedios.
+- **Estrategia:** Reducción de la complejidad espacial auxiliar de $O(n)$ (3 arreglos temporales) a **$O(1)$** (un acumulador numérico), manteniendo tiempo $O(n)$ con menor carga de memoria.
+9. **MiniReto 9 — Optimización con `Set` y `Map`: Intercambio Tiempo-Memoria (`src/optimizadas.js`)**
+
+- **Construcción:** Reescritura de detección de clientes recurrentes con `Set` (`clientesRecurrentesSet`) y conteo de frecuencias con `Map` (`comprasPorCliente`).
+- **Estrategia:** *Time-Space Tradeoff*: invertir memoria auxiliar $O(n)$ en tablas hash con búsqueda/inserción promedio $O(1)$ para eliminar el ciclo anidado, reduciendo el tiempo de ejecución de segundos a milisegundos ($O(n^2) \rightarrow O(n)$).
+10. **MiniReto 10 — Patrones con `Map`: Complementos, Frecuencias Anidadas y Dos Recorridos (`src/catalogo.js` y `src/analitica.js`)**
+
+- **Construcción:** `comboRegalo` (búsqueda de par con suma exacta), `productoEstrellaPorCiudad` (con doble criterio de desempate por frecuencia y unidades) y `primerClienteUnico`.
+- **Estrategia:** Reemplazo de búsquedas de pares $O(n^2)$ por consulta de complemento (`valor - precio`) en `Map` en tiempo lineal promedio $O(n)$, y resolución de unicidad en orden cronológico mediante dos recorridos secuenciales ($O(2n) = O(n)$).
+11. **MiniReto 11 — Ventana Deslizante y Dos Punteros (`src/analitica.js`)**
+
+- **Construcción:** `mejorSemana` para hallar los 7 días consecutivos de mayor venta en septiembre y `parMasCercano` para maximizar presupuesto corporativo sin excederlo.
+- **Estrategia:** *Sliding Window* (sumar el día entrante y restar el saliente en $O(1)$ por paso, logrando $O(n)$ total) y *Two Pointers* convergentes (`izq` y `der`) sobre el catálogo ordenado ($O(n \log n)$ incluyendo el ordenamiento).
+12. **MiniReto 12 — Integración CLI v1.0, Documentación Ejecutiva y Benchmark Final (`src/reporte.js`, `RENDIMIENTO.md`, `README.md`)**
+
+- **Construcción:** Unificación del reporte gerencial con soporte por línea de comandos (`process.argv[2]`) para datos reales o simulados, limitación inteligente de salida en consola y comparativa empírica v0.1 vs. v1.0.
+- **Estrategia:** Consolidación de arquitectura modular y traducción de métricas técnicas (Big O, milisegundos y memoria) en decisiones de producto listas para negocio.
+
 
 
 
